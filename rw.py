@@ -34,9 +34,9 @@ def read(vid_name):
 	vid.release()
 
 	# Converts array to ndarray
-	frames_array = np.asarray(frames_list)
+	frames = np.asarray(frames_list)
 
-	return frames_array
+	return frames
 
 
 def write():

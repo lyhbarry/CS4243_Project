@@ -1,12 +1,98 @@
 """
+Author: Rodson Chue
+
 Top Down Projector
 
+Contains functions that helps map points on an image plane,
+to an imaginary top-down plane.
+
+See: computeHomographyToCourt(), toPlaneCoordinates()
+
+<obsolete>
 Contains functions that converts camera pixels positions
 into top-down coordinates, corrected using camera's intrinsic
 and extrinsic parameters
+</obsolete>
 """
 import numpy as np
+import homography as hg
 
+def computeHomographyToCourt(ptsOnImgPlane):
+    """
+    Computes homography from an image plane to the court's image plane (Top down)
+    returns homography H such that:
+
+    Top-down coord = H * image plane coord
+    and top-down coord = [a*u, a*v, a]
+
+    The interior of the court is defined to be between [0, 1] on both u, v axis
+
+    ptsOnImgPlane should be a dictionary with the following keys:
+    0 - TopLeft
+    1 - TopMid
+    2 - TopRight
+    3 - BottomLeft
+    4 - BottomMid
+    5 - BottomRight
+
+    Court looks like the following:
+
+    +---------------> +ve u-direction
+    | 0----1----2
+    | |         |
+    | 3----4----5 << corners of the court
+    V
+    +ve v-direction
+    """
+    # Need minimum 4 points
+    if(len(ptsOnImgPlane)<4):
+        return None
+
+    pts_src = []
+    pts_dst = []
+    ptsAvailable = ptsOnImgPlane.keys()
+    if(0 in ptsAvailable):
+        pts_src.append(ptsOnImgPlane[0])
+        pts_dst.append([0., 0.])
+    if(1 in ptsAvailable):
+        pts_src.append(ptsOnImgPlane[1])
+        pts_dst.append([0.5, 0.])
+    if(2 in ptsAvailable):
+        pts_src.append(ptsOnImgPlane[2])
+        pts_dst.append([1., 0.])
+    if(3 in ptsAvailable):
+        pts_src.append(ptsOnImgPlane[3])
+        pts_dst.append([0., 1.])
+    if(4 in ptsAvailable):
+        pts_src.append(ptsOnImgPlane[4])
+        pts_dst.append([0.5, 1.])
+    if(5 in ptsAvailable):
+        pts_src.append(ptsOnImgPlane[5])
+        pts_dst.append([1., 1.])
+    H = hg.find_homography(pts_src, pts_dst)
+    return H
+
+def normalizeImgVector(uvVec):
+    """
+    Given a vector such that [a*u, a*v, a]
+    returns the normalized vector [u, v]
+    """
+    if(uvVec[2]==0):
+        return uvVecs
+    uvVec[:] = uvVec[:]/uvVec[2]
+    return uvVec
+
+def toPlaneCoordinates(pts, H, normalize=True):
+    plane_pts = []
+    for pt in pts:
+        plane_pt = np.dot(H, pt)
+        if(normalize):
+            plane_pt = normalizeImgVector(plane_pt)
+            
+        plane_pts.append(plane_pt)
+    return plane_pts
+
+############# Any code after this point can be considered obsolete #################
 def computeRay(pixel, windowSize, camIntrinsic, camExtrinsic):
     """
     Computes the ray-trace vector for a particular pixel

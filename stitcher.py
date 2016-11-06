@@ -1,17 +1,18 @@
 """
 Author: Ng Jun Wei
 
-Stitcher module
+Stitcher
 
-Handles the full court panoramic view of the game.
+Creates the full court panoramic view of the game.
 """
 
 import numpy as np
 import homography as hg
 import cv2
+import math
 
 
-def generate_corresponding_pairs(points1, points2):
+def generate_corresponding_pairs(points1, points2, threshold=5):
     # type: ((int, int)[], (int, int)[]) -> ((int, int), (int, int))[]
     """
     Purpose:
@@ -22,10 +23,16 @@ def generate_corresponding_pairs(points1, points2):
     Returns:
         a list of pairs of corresponding feature points for frame #1 and #2
     """
-    # TODO: perform correspondence check.
-
-    # TODO: remove stub value.
     pairs = []
+
+    for i in range(len(points1)):
+        for point in points2[:]:
+            x2 = math.pow(abs(points1[i][0] - point[0]), 2)
+            y2 = math.pow(abs(points1[i][1] - point[1]), 2)
+            if math.sqrt(x2 + y2) < threshold:
+                pairs.append((points1[i], point))
+                points2.remove(point)
+
     return pairs
 
 

@@ -1,0 +1,7 @@
+# Python compiled code #
+########################
+.pyc
+
+# Test folders #
+################
+*_test

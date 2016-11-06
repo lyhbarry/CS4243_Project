@@ -13,7 +13,7 @@ List of all the components:
 import rw
 import time
 
-def main():
+if __name__ == "__main__":
 	# Directory where my (Barry) videos are.
 	# Comment out existing ones and create your own list for testing,
 	# and do not upload your videos to the repo.
@@ -25,7 +25,3 @@ def main():
     start_time = time.time()
     rw.read(video_list[0])
     print time.time() - start_time
-
-
-# Execute program
-main()	

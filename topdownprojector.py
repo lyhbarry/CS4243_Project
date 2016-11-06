@@ -14,8 +14,11 @@ into top-down coordinates, corrected using camera's intrinsic
 and extrinsic parameters
 </obsolete>
 """
+
+
 import numpy as np
 import homography as hg
+
 
 def computeHomographyToCourt(ptsOnImgPlane):
     """
@@ -83,10 +86,10 @@ def normalizeImgVector(uvVec):
     return uvVec
 
 def toPlaneCoordinates(pts, H, normalize=True):
-	"""
-	Given a homography H, maps a list of points pts
-	into their corresponding points based on H.
-	"""
+    """
+    Given a homography H, maps a list of points pts
+    into their corresponding points based on H.
+    """
     plane_pts = []
     for pt in pts:
         plane_pt = np.dot(H, pt)

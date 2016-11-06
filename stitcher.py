@@ -91,6 +91,16 @@ def get_output_size(h, w, homo_mat):
     """
 
     # TODO: explain how size matrix works.
+
+    # From http://stackoverflow.com/questions/22220253/cvwarpperspective-only-shows-part-of-warped-image:
+    # H * S = [[h00 h01 h02]  * [[0 w w 0]
+    #          [h10 h11 h12]     [0 0 h h]
+    #          [h20 h21 h22]]    [1 1 1 1]]
+    #
+    #       = [[h02     w * h00 + h02   w * h00 + h * h01 + h02     h * h01 + h02]
+    #          [h12     w * h10 + h12   w * h10 + h * h11 + h12     h * h11 + h12]
+    #          [h22     w * h20 + h12   w * h20 + h * h21 + h22     h * h21 + h22]]
+
     size_mat = np.array([[0, w, w, 0], [0, 0, h, h], [1, 1, 1, 1]])
 
     size_mat = np.dot(homo_mat, size_mat)
@@ -163,11 +173,16 @@ def create_full_court_stitch(frames, points, path):
             output = warped
         else:
             grey = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
-            _, mask = cv2.threshold(grey, 25, 255, cv2.THRESH_BINARY)
+            # obtain the mask of the new frame
+            _, mask = cv2.threshold(grey, 10, 255, cv2.THRESH_BINARY)
+            # obtain the inverse of the mask
             mask_inv = cv2.bitwise_not(mask)
+            # mask out the regions that are not updated
             roi = cv2.bitwise_and(warped, warped, mask=mask)
-            overlay = cv2.bitwise_and(output, output, mask=mask_inv)
-            output = cv2.add(overlay, roi)
+            # mask out the area to be updated
+            background = cv2.bitwise_and(output, output, mask=mask_inv)
+            # place the updated regions into the ongoing background
+            output = cv2.add(background, roi)
 
         # step 4: save the output frame to a specified destination
         cv2.imwrite(path + 'pano_' + '{:04}'.format(i) + '.jpg', output)

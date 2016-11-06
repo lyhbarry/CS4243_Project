@@ -75,7 +75,7 @@ def computeHomographyToCourt(ptsOnImgPlane):
 def normalizeImgVector(uvVec):
     """
     Given a vector such that [a*u, a*v, a]
-    returns the normalized vector [u, v]
+    returns the normalized vector [u, v, 1]
     """
     if(uvVec[2]==0):
         return uvVecs
@@ -83,6 +83,10 @@ def normalizeImgVector(uvVec):
     return uvVec
 
 def toPlaneCoordinates(pts, H, normalize=True):
+	"""
+	Given a homography H, maps a list of points pts
+	into their corresponding points based on H.
+	"""
     plane_pts = []
     for pt in pts:
         plane_pt = np.dot(H, pt)

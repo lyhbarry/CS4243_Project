@@ -1,3 +1,9 @@
+"""
+Author: Ng Jun Wei
+
+Homography module
+"""
+
 import numpy as np
 
 

@@ -1,15 +1,16 @@
 """
 Author: Ng Jun Wei
 
-Stitcher
+Stitcher module
 
-Creates the full court panoramic view of the game.
+Handles the full court panoramic view of the game.
 """
 
 import numpy as np
 import homography as hg
 import cv2
 import math
+import os
 
 
 def generate_corresponding_pairs(points1, points2, threshold=5):
@@ -59,6 +60,7 @@ def generate_homography_matrix_list(points):
         curr = points[i]
 
         pairs = generate_corresponding_pairs(prev, curr)
+
         points_curr = []
         points_prev = []
         for j in range(len(pairs)):
@@ -119,6 +121,8 @@ def create_full_court_stitch(frames, points, path):
         points = <get feature points using feature tracker(detector?)>
         st.create_full_court_stitch(frames, points, '6_working/pano')
     """
+    if not os.path.exists(path):
+        os.makedirs(path)
 
     # step 1: generate list of homography matrices between each frames
     matrices = generate_homography_matrix_list(points)
@@ -153,7 +157,17 @@ def create_full_court_stitch(frames, points, path):
         homo[1, 2] += abs(offset_top)
 
         # step 3: generate the output frame
-        output = cv2.warpPerspective(frames[i], homo, max_w, max_h)
+        warped = cv2.warpPerspective(frames[i], homo, max_w, max_h)
+
+        if i is 0:
+            output = warped
+        else:
+            grey = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
+            _, mask = cv2.threshold(grey, 25, 255, cv2.THRESH_BINARY)
+            mask_inv = cv2.bitwise_not(mask)
+            roi = cv2.bitwise_and(warped, warped, mask=mask)
+            overlay = cv2.bitwise_and(output, output, mask=mask_inv)
+            output = cv2.add(overlay, roi)
 
         # step 4: save the output frame to a specified destination
         cv2.imwrite(path + 'pano_' + '{:04}'.format(i) + '.jpg', output)

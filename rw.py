@@ -3,7 +3,6 @@
 
 Executes all reading and writing of videos.
 """
-
 import cv2
 import numpy as np
 
@@ -12,42 +11,42 @@ from random import randint
 font = cv2.FONT_HERSHEY_PLAIN	# Font-type
 
 def read(vid_name):
-    """
-    Purpose:
-        Read video frames
-    Args:
-        vid_name (string): Name of video file to be read
-    Returns:
-        frames (ndarray): Ndarray of all frames read from video
-    """
-    vid = cv2.VideoCapture(vid_name)
-    frames_list = []
+	"""
+	Purpose:
+		Read video frames
+	Args:
+		vid_name (string): Name of video file to be read
+	Returns:
+		frames (ndarray): Ndarray of all frames read from video
+	"""
+	vid = cv2.VideoCapture(vid_name)
+	frames_list = []
 
-    ret = True
-    while ret:
-        ret, frame = vid.read()  # Read frame by frame
-        if frame is not None:
-            frames_list.append(frame)  # Appends frames read from video
-            #
-            # # Terminates when all frames are read
-            # if ret is False:
-            #     break
+	ret = True
+	while ret:
+		ret, frame = vid.read()  # Read frame by frame
+		if frame is not None:
+			frames_list.append(frame)  # Appends frames read from video
+			#
+			# # Terminates when all frames are read
+			# if ret is False:
+			#     break
 
-    fps = vid.get(cv2.cv.CV_CAP_PROP_FPS)
+	fps = vid.get(cv2.cv.CV_CAP_PROP_FPS)
 
-    # Release capture once all frames are read and appended
-    vid.release()
+	# Release capture once all frames are read and appended
+	vid.release()
 
-    # Converts array to ndarray
-    frames = np.asarray(frames_list)
+	# Converts array to ndarray
+	frames = np.asarray(frames_list)
 
-    return frames, fps
+	return frames, fps
 
 
 def write(filename, frames, fps):
-    # type: (string, ndarray, int) -> void
-    (h, w) = frames[0].shape[:2]
-    vid = cv2.VideoWriter(filename + ".avi", cv2.cv.CV_FOURCC('D', 'I', 'V', 'X'),  fps, (w, h))
+	# type: (string, ndarray, int) -> void
+	(h, w) = frames[0].shape[:2]
+	vid = cv2.VideoWriter(filename + ".avi", cv2.cv.CV_FOURCC('D', 'I', 'V', 'X'),  fps, (w, h))
 
 
 def draw_original_vid(frame):
@@ -155,13 +154,13 @@ def output_generator(vid_name):
 
 	# Define the codec and create VideoWriter object
 	fourcc = cv2.cv.CV_FOURCC('m', 'p', '4', 'v')
-	out = cv2.VideoWriter('output.avi', fourcc, fps, (w * 2, h * 2))	
+	out = cv2.VideoWriter('output.avi', fourcc, fps, (w * 2, h * 2))
 
 	while True:	
-		ret1, vid_frame = vid.read()
+		ret, vid_frame = vid.read()
 
 		# Terminates when all frames are read
-		if ret1 == False:
+		if ret == False:
 			break
 
 		# Initialise output frames		
@@ -181,7 +180,7 @@ def output_generator(vid_name):
 		full_vid = np.vstack((top_half, btm_half))
 		out.write(full_vid)
 			
-		# cv2.imshow('Output Video', full_vid)
+		cv2.imshow('Output Video', full_vid)
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
 

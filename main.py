@@ -14,10 +14,7 @@ import rw
 import time
 
 if __name__ == "__main__":
-    # # Directory where my (Barry) videos are.
-    # # Comment out existing ones and create your own list for testing,
-    # # and do not upload your videos to the repo.
-    video_list = ['/Users/lyhbarry/Development/beachVolleyball/beachVolleyball1.mov']
+    video_list = ['input/beachVolleyball1.mov']
     #
     # # Test function:
     # # Time taken to retrieve frames from video

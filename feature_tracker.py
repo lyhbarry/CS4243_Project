@@ -17,7 +17,7 @@ def read_video_file(file_name, video_number):
     static_lk_params = dict(winSize  = (10,10),maxLevel = 2,criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
     player_lk_params = dict(winSize  = (15,15),maxLevel = 2,criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
     feature_params = dict( maxCorners = 100, qualityLevel = 0.3, minDistance = 7, blockSize = 7 )
-    mask = np.zeros_like(old_frame)
+    #mask = np.zeros_like(old_frame)
     
     # this function finds A LOT of features 
     p0 = cv2.goodFeaturesToTrack(gray_old_frame, mask = None, **feature_params)
@@ -154,7 +154,7 @@ def read_video_file(file_name, video_number):
         for i,(new,old) in enumerate(zip(good_new,good_old)):
             a,b = new.ravel()
             c,d = old.ravel()
-            cv2.line(mask, (a,b),(c,d), color[i].tolist(), 2)
+            #cv2.line(mask, (a,b),(c,d), color[i].tolist(), 2)
             cv2.circle(img,(a,b),5,color[i].tolist(),-1)
         
         good_new_2 = new_player_points[st_2==1]
@@ -163,12 +163,12 @@ def read_video_file(file_name, video_number):
         for i,(new,old) in enumerate(zip(good_new_2,good_old_2)):
             a,b = new.ravel()
             c,d = old.ravel()
-            cv2.line(mask, (a,b),(c,d), color[i].tolist(), 2)
+            #cv2.line(mask, (a,b),(c,d), color[i].tolist(), 2)
             cv2.circle(img,(a,b),5,color[i].tolist(),-1)
         
-        image = cv2.add(img,mask)
+        #image = cv2.add(img,mask)
 
-        cv2.imshow('frame',image)
+        cv2.imshow('frame',img)
         k = cv2.waitKey(30) & 0xff
         if k == 27:
             break
@@ -181,7 +181,7 @@ def read_video_file(file_name, video_number):
         player_points = good_new_2.reshape(-1,1,2)
 
 def main():
-    file_name = "/Users/benjsoon/Documents/CS4243 - Computer Vision and Pattern Recognition/CS4243_Project_Instructions_and_Data/beachVolleyball/beachVolleyball7.mov"
+    file_name = "input/beachVolleyball7.mov"
     video_number = int(raw_input('Enter video number: '))
     read_video_file(file_name, video_number)
 

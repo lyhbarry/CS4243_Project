@@ -151,17 +151,19 @@ def output_generator(vid_name):
 	w = int(vid.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
 	h = int(vid.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
 	fps = int(vid.get(cv2.cv.CV_CAP_PROP_FPS))
+	frame_count = int(vid.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT))
 
 	# Define the codec and create VideoWriter object
 	fourcc = cv2.cv.CV_FOURCC('m', 'p', '4', 'v')
 	out = cv2.VideoWriter('output.avi', fourcc, fps, (w * 2, h * 2))
 
-	while True:	
+	print '\n[Generating Output - BEGIN]'
+	for i in range(frame_count):
 		ret, vid_frame = vid.read()
 
 		# Terminates when all frames are read
-		if ret == False:
-			break
+		# if ret == False:
+		# 	break
 
 		# Initialise output frames		
 		full_court_frame = np.zeros(vid_frame.shape, np.uint8)
@@ -178,11 +180,18 @@ def output_generator(vid_name):
 		top_half = np.hstack((vid_frame, full_court_frame))
 		btm_half = np.hstack((top_down_frame, stats_frame))
 		full_vid = np.vstack((top_half, btm_half))
+
+		# Write frame to video
+		if (i + 1) % 50 == 0:
+			print 'Processing ', i + 1, '/', frame_count, ' frames...'   
 		out.write(full_vid)
 			
 		cv2.imshow('Output Video', full_vid)
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
+
+	print 'Processing ', frame_count, '/', frame_count, ' frames...'		
+	print '[Generating Output - COMPLETED]'
 
 	# Release capture once all frames are read and appended
 	vid.release()

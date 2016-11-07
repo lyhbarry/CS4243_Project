@@ -32,4 +32,4 @@ if __name__ == "__main__":
     
     start_time = time.time()
     rw.output_generator(video_list[0])
-    print "time taken to generate output:", time.time() - start_time
+    print "Time taken to generate output:", time.time() - start_time, 's\n'

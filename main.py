@@ -17,7 +17,7 @@ if __name__ == "__main__":
     # # Directory where my (Barry) videos are.
     # # Comment out existing ones and create your own list for testing,
     # # and do not upload your videos to the repo.
-    # video_list = ['/Users/lyhbarry/Development/beachVolleyball/beachVolleyball1.mov']
+    video_list = ['/Users/lyhbarry/Development/beachVolleyball/beachVolleyball1.mov']
     #
     # # Test function:
     # # Time taken to retrieve frames from video
@@ -35,9 +35,12 @@ if __name__ == "__main__":
 
     start_time = time.time()
 
-    video_6 = 'input/beachVolleyball6.mov'
-    frames6, fps6 = rw.read(video_6)
-    stitcher6 = Stitcher()
-    stitcher6.do_main(frames6, fps6, [None, None, None, frames6[0].shape[0] / 2], None, 6)
+    # video_6 = 'input/beachVolleyball6.mov'
+    # frames6, fps6 = rw.read(video_6)
+    # stitcher6 = Stitcher()
+    # stitcher6.do_main(frames6, fps6, [None, None, None, frames6[0].shape[0] / 2], None, 6)
 
-    print "time taken to generate pano files:", time.time() - start_time
+    rw.output_generator(video_list[0])
+
+    # print "time taken to generate pano files:", time.time() - start_time
+    print "time taken to generate output:", time.time() - start_time

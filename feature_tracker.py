@@ -10,6 +10,19 @@ def read_video_file(file_name, video_number):
     
     # read the first frame of video and convert to grayscale
     _,old_frame = cap.read()
+
+    """
+    (h, w) = old_frame.shape[:2]
+    print h, w
+    offset_left = 0
+    offset_top = old_frame.shape[0]/4
+    offset_right = 0
+    offset_bottom = 0
+
+    temp = np.array(old_frame, copy=True)
+    temp = temp[offset_top:h-offset_bottom, offset_left:w-offset_right]
+    gray_old_frame = cv2.cvtColor(temp, cv2.COLOR_BGR2GRAY)
+    """
     gray_old_frame = cv2.cvtColor(old_frame, cv2.COLOR_BGR2GRAY)
     color = np.random.randint(0,255,(100,3))
 
@@ -22,11 +35,13 @@ def read_video_file(file_name, video_number):
     
     # this function finds A LOT of features 
     p0 = cv2.goodFeaturesToTrack(gray_old_frame, mask = None, **feature_params)
-    print p0
+    #print p0
 
     #number of static points and player points
     number_of_static = 0
     number_of_player = 0
+    old_number_of_static = 0
+    old_number_of_player = 0
 
     # images to find coordinates of feature points better
     plt.figure()
@@ -53,30 +68,31 @@ def read_video_file(file_name, video_number):
     if video_number == 1:
         # 1st video static points
         
-        static_points = np.zeros((6,1,2))
-        static_points[0][0] = p0[-1] #left pole
-        static_points[1][0] = p0[1]  #right pole
-        static_points[2][0] = p0[23]
-        static_points[3][0] = p0[46]
-        static_points[4][0] = p0[-17]
-        static_points[5][0] = p0[29]
+        static_points = np.zeros((5,1,2))
+        
+        static_points[0][0] = [309, 77] #good  bottom of umpire pole
+        static_points[1][0] = [353, 193] # good middle of court
+        static_points[2][0] = [39, 142] # good bottom of left pole
+        static_points[3][0] = [88, 144] # left side of the court
         static_points = static_points.astype(np.float32)
 
         # 1st video player points
-        player_points = np.zeros((3,1,2))
-        player_points[0][0] = p0[27]
-        player_points[1][0] = p0[12]
-        player_points[2][0] = p0[40]
+        player_points = np.zeros((5,1,2))
+        player_points[0][0] = [207 ,97]
+        player_points[1][0] = [175, 61]
+        player_points[2][0] = [93, 71]
+        player_points[3][0] = [508, 163]
+        player_points[4][0] = [498, 186]
         player_points = player_points.astype(np.float32)
         print static_points
         
     elif video_number == 2:    
         #2nd video static points
         static_points = np.zeros((4,1,2))
-        static_points[0][0] = p0[76] # left pole
-        static_points[1][0] = p0[22] # flag guy at the back standing on the right
-        static_points[2][0] = p0[53]
-        static_points[3][0] = p0[39]
+        static_points[0][0] = [535, 142]
+        static_points[1][0] = [574, 82]
+        static_points[2][0] = [531, 89] 
+        static_points[3][0] = [580, 128]
         static_points = static_points.astype(np.float32)
 
         #2nd video player points
@@ -89,9 +105,11 @@ def read_video_file(file_name, video_number):
         
     elif video_number == 3:    
         # 3rd video static points
-        static_points = np.zeros((2,1,2))
-        static_points[0][0] = p0[30] #nearer pole
+        static_points = np.zeros((4,1,2))
+        static_points[0][0] = [343, 160] #nearer pole
         static_points[1][0] = p0[74] #guy sitting across, his shoe
+        static_points[2][0] = [238, 267]
+        static_points[3][0] = [238, 232]
         static_points = static_points.astype(np.float32)
 
         # 3rd video player points
@@ -104,9 +122,14 @@ def read_video_file(file_name, video_number):
     elif video_number == 5:
         # 5th video static points
         
-        static_points = np.zeros((2,1,2))
-        static_points[0][0] = p0[-8]  #corner of the podium of the umpire
-        static_points[1][0] = p0[12]  #bottom left coorner of the net
+        static_points = np.zeros((5,1,2))
+        #static_points[0][0] = p0[-8]  #corner of the podium of the umpire
+        #static_points[1][0] = p0[12]  #bottom left coorner of the net
+        static_points[0][0] = [455, 164]
+        static_points[1][0] = [203, 138]
+        static_points[2][0] = [483, 168]
+        static_points[3][0] = [102, 258]
+        static_points[4][0] = [202, 173]
         static_points = static_points.astype(np.float32)
 
         player_points = np.zeros((6,1,2))
@@ -121,27 +144,43 @@ def read_video_file(file_name, video_number):
     elif video_number == 6:
         # 6th video static points
         
-        static_points = np.zeros((2,1,2))
-        static_points[0][0] = p0[-8] #umpire pole
-        static_points[1][0] = p0[28] #top left corner of five sign, but might move down due to ball
+        static_points = np.zeros((4,1,2))
+        static_points[0][0] = [442, 190] #umpire pole
+        static_points[1][0] = [562, 284] #top left corner of five sign, but might move down due to ball
+        static_points[2][0] = [557, 164]
+        static_points[3][0] = [590, 300]
         static_points = static_points.astype(np.float32)
+
+        player_points = np.zeros((1,1,2))
         
     elif video_number == 7:
         # 7th video static points
         
-        static_points = np.zeros((3,1,2))
-        static_points[0][0] = p0[-3] # umpire
-        static_points[1][0] = p0[13] # five sign top right corner
-        static_points[2][0] = p0[10] # pole nearer to the camera
+        static_points = np.zeros((4,1,2))
+        static_points[0][0] = [76, 176] # umpire
+        static_points[1][0] = [214, 189] # five sign top right corner
+        static_points[2][0] = [66, 207] # pole nearer to the camera
+        static_points[3][0] = [197,334]
         static_points = static_points.astype(np.float32)
 
         player_points = np.zeros((1,1,2))
         player_points[0][0] = p0[21] # right side, bending
         player_points = player_points.astype(np.float32)
-    
+    print static_points
     for i in range(1,frame_count):
         _,img = cap.read()
+        """
+        (h, w) = img.shape[:2]
 
+        offset_left = 0
+        offset_top = img.shape[0]/4
+        offset_right = 0
+        offset_bottom = 0
+
+        temp = np.array(img, copy=True)
+        temp = temp[offset_top:h-offset_bottom, offset_left:w-offset_right]
+        gray_img = cv2.cvtColor(temp, cv2.COLOR_BGR2GRAY)
+        """
         gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         
         # use this line when you want to see all the movement of all the features
@@ -150,8 +189,10 @@ def read_video_file(file_name, video_number):
         # use this line when you want to see the movement of specific points
         
         new_static_points, st, err = cv2.calcOpticalFlowPyrLK(gray_old_frame, gray_img, static_points, None, **static_lk_params)
-        new_player_points, st_2, err = cv2.calcOpticalFlowPyrLK(gray_old_frame, gray_img, player_points, None, **player_lk_params)
-        
+        #new_player_points, st_2, err_2 = cv2.calcOpticalFlowPyrLK(gray_old_frame, gray_img, player_points, None, **player_lk_params)
+        print static_points, new_static_points
+        #print err
+        #print err_2
         # use this section when looking at ALL feature points 
         """
         good_new = static_points[st==1]
@@ -161,6 +202,31 @@ def read_video_file(file_name, video_number):
         
         good_new = new_static_points[st==1]
         good_old = static_points[st==1]
+        print good_new
+        """
+        if i == 1:
+            number_of_static = len(static_points)
+            old_number_of_static = len(static_points)
+        else:
+            number_of_static = len(good_new)
+            print number_of_static
+            print old_number_of_static
+            if number_of_static < old_number_of_static:
+                plt.imshow(img)
+                plt.savefig('new_points_to_find.jpg')
+                plt.close()
+                #good_new[-1] = [144, 250]
+                #print (good_new.append([144, 250]))
+                good_new = np.append(good_new, [[144, 250]], axis=0)
+                print good_new
+                print good_new[0]
+                print good_new[1]
+                print good_new[2]
+                print good_new[3]
+                print "HERE BEN"
+                print static_points
+            number_of_static = len(static_points)
+        """    
         
         #print good_new
         #ensure number of static points is the same, if not change to another
@@ -176,12 +242,13 @@ def read_video_file(file_name, video_number):
                     print point[0]
                     good_new[-1] = point[0][0]
         """
-        for i,(new,old) in enumerate(zip(good_new,good_old)):
+        for j,(new,old) in enumerate(zip(good_new,good_old)):
+            print j
             a,b = new.ravel()
             c,d = old.ravel()
             #cv2.line(mask, (a,b),(c,d), color[i].tolist(), 2)
-            cv2.circle(img,(a,b),5,color[i].tolist(),-1)
-        
+            cv2.circle(img,(a,b),5,color[j].tolist(),-1)
+        """
         good_new_2 = new_player_points[st_2==1]
         good_old_2 = player_points[st_2==1]
 
@@ -190,7 +257,7 @@ def read_video_file(file_name, video_number):
             c,d = old.ravel()
             #cv2.line(mask, (a,b),(c,d), color[i].tolist(), 2)
             cv2.circle(img,(a,b),5,color[i].tolist(),-1)
-        
+        """
         #image = cv2.add(img,mask)
         
         cv2.imshow('frame',img)
@@ -202,11 +269,12 @@ def read_video_file(file_name, video_number):
         #p0 = good_new.reshape(-1,1,2)
 
         # use this line for specific points
+        #print (good_new.reshape(-1,1,2))
         static_points = good_new.reshape(-1,1,2)
-        player_points = good_new_2.reshape(-1,1,2)
+        #player_points = good_new_2.reshape(-1,1,2)
 
 def main():
-    file_name = "input/beachVolleyball1.mov"
+    file_name = "input/beachVolleyball6.mov"
     video_number = int(raw_input('Enter video number: '))
     read_video_file(file_name, video_number)
 

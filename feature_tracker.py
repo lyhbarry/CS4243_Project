@@ -16,12 +16,17 @@ def read_video_file(file_name, video_number):
     #parameters to detect and track feature points
     static_lk_params = dict(winSize  = (10,10),maxLevel = 2,criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
     player_lk_params = dict(winSize  = (15,15),maxLevel = 2,criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
-    feature_params = dict( maxCorners = 100, qualityLevel = 0.3, minDistance = 7, blockSize = 7 )
+    feature_params = dict( maxCorners = 200, qualityLevel = 0.3, minDistance = 7, blockSize = 7 )
+    new_feature_params = dict(maxCorners = 10, qualityLevel = 0.3, minDistance = 7, blockSize = 7)
     #mask = np.zeros_like(old_frame)
     
     # this function finds A LOT of features 
     p0 = cv2.goodFeaturesToTrack(gray_old_frame, mask = None, **feature_params)
     print p0
+
+    #number of static points and player points
+    number_of_static = 0
+    number_of_player = 0
 
     # images to find coordinates of feature points better
     plt.figure()
@@ -48,9 +53,13 @@ def read_video_file(file_name, video_number):
     if video_number == 1:
         # 1st video static points
         
-        static_points = np.zeros((2,1,2))
+        static_points = np.zeros((6,1,2))
         static_points[0][0] = p0[-1] #left pole
         static_points[1][0] = p0[1]  #right pole
+        static_points[2][0] = p0[23]
+        static_points[3][0] = p0[46]
+        static_points[4][0] = p0[-17]
+        static_points[5][0] = p0[29]
         static_points = static_points.astype(np.float32)
 
         # 1st video player points
@@ -63,9 +72,11 @@ def read_video_file(file_name, video_number):
         
     elif video_number == 2:    
         #2nd video static points
-        static_points = np.zeros((2,1,2))
+        static_points = np.zeros((4,1,2))
         static_points[0][0] = p0[76] # left pole
         static_points[1][0] = p0[22] # flag guy at the back standing on the right
+        static_points[2][0] = p0[53]
+        static_points[3][0] = p0[39]
         static_points = static_points.astype(np.float32)
 
         #2nd video player points
@@ -94,7 +105,7 @@ def read_video_file(file_name, video_number):
         # 5th video static points
         
         static_points = np.zeros((2,1,2))
-        static_points[0][0] = p0[-8]  #corner of the podium of the empire
+        static_points[0][0] = p0[-8]  #corner of the podium of the umpire
         static_points[1][0] = p0[12]  #bottom left coorner of the net
         static_points = static_points.astype(np.float32)
 
@@ -151,6 +162,20 @@ def read_video_file(file_name, video_number):
         good_new = new_static_points[st==1]
         good_old = static_points[st==1]
         
+        #print good_new
+        #ensure number of static points is the same, if not change to another
+        """
+        if i == 1:
+            number_of_static = len(good_old)
+        else:
+            if len(good_new) < number_of_static:
+                p0 = cv2.goodFeaturesToTrack(gray_old_frame, mask = None, **new_feature_params)
+                print("TRACKING NEW POINTS")
+                for i, point in enumerate(zip(p0)):
+                    print point
+                    print point[0]
+                    good_new[-1] = point[0][0]
+        """
         for i,(new,old) in enumerate(zip(good_new,good_old)):
             a,b = new.ravel()
             c,d = old.ravel()
@@ -167,7 +192,7 @@ def read_video_file(file_name, video_number):
             cv2.circle(img,(a,b),5,color[i].tolist(),-1)
         
         #image = cv2.add(img,mask)
-
+        
         cv2.imshow('frame',img)
         k = cv2.waitKey(30) & 0xff
         if k == 27:
@@ -181,7 +206,7 @@ def read_video_file(file_name, video_number):
         player_points = good_new_2.reshape(-1,1,2)
 
 def main():
-    file_name = "input/beachVolleyball7.mov"
+    file_name = "input/beachVolleyball1.mov"
     video_number = int(raw_input('Enter video number: '))
     read_video_file(file_name, video_number)
 

@@ -14,21 +14,21 @@ import rw
 import time
 
 if __name__ == "__main__":
-    video_list = ['input/beachVolleyball1.mov']
+    video_list = ['input/beachVolleyball6.mov']
 
     # NOTE: The code below is not meant to be submitted. Just for a feel of the pano stitching.
     # The below code is something I have tried previously that kinda worked.
     # The new code I submitted didn't work as well because I couldn't get the feature points yet.
     # Note that the feature points obtained through the code below is via SURF using the spectator
-    #   plane as the flat plane to calculate the homography from.
-    # from archival_stitcher import Stitcher
+    # plane as the flat plane to calculate the homography from.
+    from archival_stitcher import Stitcher
 
-    # start_time = time.time()
-    # video_6 = 'input/beachVolleyball6.mov'
-    # frames6, fps6 = rw.read(video_6)
-    # stitcher6 = Stitcher()
-    # stitcher6.do_main(frames6, fps6, [None, None, None, frames6[0].shape[0] / 2], None, 6)
-    # print "time taken to generate pano files:", time.time() - start_time
+    start_time = time.time()
+    video_6 = 'input/beachVolleyball6.mov'
+    frames6, fps6 = rw.read(video_6)
+    stitcher6 = Stitcher()
+    stitcher6.do_main(frames6, fps6, [None, None, None, frames6[0].shape[0] / 2], None, 6)
+    print "time taken to generate pano files:", time.time() - start_time, 's'
     
     start_time = time.time()
     rw.output_generator(video_list[0])

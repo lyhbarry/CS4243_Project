@@ -157,16 +157,14 @@ def output_generator(vid_name):
 	fourcc = cv2.cv.CV_FOURCC('m', 'p', '4', 'v')
 	out = cv2.VideoWriter('output.avi', fourcc, fps, (w * 2, h * 2))
 
-	print '\n[Generating Output - BEGIN]'
+	print '\n[BEGIN] - Generating Output'
 	for i in range(frame_count):
 		ret, vid_frame = vid.read()
 
-		# Terminates when all frames are read
-		# if ret == False:
-		# 	break
-
 		# Initialise output frames		
-		full_court_frame = np.zeros(vid_frame.shape, np.uint8)
+		# full_court_frame = np.zeros(vid_frame.shape, np.uint8)
+		full_court_frame = cv2.resize(cv2.imread('6_test/warped_' + '{:04}'.format(i) + '.jpg'),\
+									 (np.shape(vid_frame)[1], np.shape(vid_frame)[0]))
 		top_down_frame = np.zeros(vid_frame.shape, np.uint8)
 		stats_frame = np.zeros(vid_frame.shape, np.uint8)
 		
@@ -191,7 +189,7 @@ def output_generator(vid_name):
 			break
 
 	print 'Processing ', frame_count, '/', frame_count, ' frames...'		
-	print '[Generating Output - COMPLETED]'
+	print '[COMPLETED] - Generating Output'
 
 	# Release capture once all frames are read and appended
 	vid.release()

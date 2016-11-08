@@ -174,7 +174,7 @@ class Stitcher:
             print "\tsize: (" + str(max_h) + ", " + str(max_w) + ")"
             print "\toffset:", offset_list[i]
 
-            warped = cv2.warpPerspective(frames[i], temp_homo, (max_w, max_h))
+            warped = cv2.warpPerspective(frames[i], temp_homo, (max_w, max_h), flags = cv2.INTER_NEAREST)
             print "----------------------------------------------------------------------------------------------------"
             output.append(warped)
 

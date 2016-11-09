@@ -99,6 +99,21 @@ def toPlaneCoordinates(pts, H, normalize=True):
         plane_pts.append(plane_pt)
     return plane_pts
 
+def toPlaneCoordinates2D(pts, H, normalize=True):
+    """
+    Given a homography H, maps a list of points pts
+    into their corresponding points based on H.
+    """
+    plane_pts = []
+    for pt in pts:
+        vec = np.array([pt[0], pt[1], 1])
+        plane_pt = np.dot(H, vec).transpose()
+        if(normalize):
+            plane_pt = normalizeImgVector(plane_pt)
+            
+        plane_pts.append(plane_pt[:2])
+    return plane_pts
+
 ############# Any code after this point can be considered obsolete #################
 def computeRay(pixel, windowSize, camIntrinsic, camExtrinsic):
     """

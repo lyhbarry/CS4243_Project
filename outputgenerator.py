@@ -22,12 +22,13 @@ def output_writer(vid_name):
 
     # Define the codec and create VideoWriter object
     fourcc = cv2.cv.CV_FOURCC('m', 'p', '4', 'v')
-    print "w, h", w*2, h*2
+	
     out = cv2.VideoWriter('output.avi', fourcc, fps, (w * 2, h * 2))
     return out
 
 def draw_stats_alt(frame, dist):
 	""" Draw statistics frames """
+	font = cv2.FONT_HERSHEY_PLAIN	# Font-type
 
 	# Section label
 	cv2.putText(frame, 'Statistics', (5, 15), font, 1, (255,255,255), 1, cv2.CV_AA)
@@ -91,9 +92,7 @@ def draw_top_down_alt(frame, feature_pos):
     # Player A1
     if('a1' in feature_pos.keys()):
         w, h = feature_pos['a1']
-        print "values:",(w*court_width_p), (h*court_height_p)
         pos = (int((w*court_width_p)+76), int((h*court_height_p)+30))
-        print "pos", pos
         cv2.circle(frame, pos, 10, a_side_color, -1)
         cv2.putText(frame, 'A1', pos, font, 1.5, (255,255,255), 1, cv2.CV_AA)  
 

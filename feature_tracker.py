@@ -4,15 +4,27 @@ import numpy as np
 import numpy.linalg as la
 import matplotlib.pyplot as plt
 
+def check_for_large_movement_of_static_points(new_static_points, err, st):
+
+    for k,err in enumerate(err):
+        if err > 15.0:
+            print "DELETING LOL"
+            print err
+            print new_static_points[k]
+            new_static_points = np.delete(new_static_points, [k], axis=0)
+            err = np.delete(err, [k], axis=0)
+            st = np.delete(st, [k], axis=0)
+    return new_static_points, err, st        
+
 def check_static_points(number_of_static, old_number_of_static, good_new, img, print_frame_number, new_feature_points):
     if (number_of_static < old_number_of_static):
+        print_frame_number = get_frame_grid(img, print_frame_number)
         new_feature = new_feature_points[0]
         print new_feature
         new_feature_points = np.delete(new_feature_points,[0], axis=0)
         print "BEN SOON OVER HERE"
         print new_feature_points
         good_new = np.append(good_new, new_feature, axis=0)
-        print_frame_number = get_frame_grid(img, print_frame_number)
         print good_new
         good_new = good_new.astype(np.float32)
     return good_new, new_feature_points, print_frame_number    
@@ -35,14 +47,14 @@ def get_video_initial_points(video_number):
     if video_number == 1:
         # 1st video static points
         
-        static_points = np.zeros((5,1,2))
+        static_points = np.zeros((4,1,2))
         
         static_points[0][0] = [309, 77] #good  bottom of umpire pole
         static_points[1][0] = [353, 193] # good middle of court
         static_points[2][0] = [39, 142] # good bottom of left pole
         static_points[3][0] = [88, 144] # left side of the court
         static_points = static_points.astype(np.float32)
-
+        """
         # 1st video player points
         player_points = np.zeros((5,1,2))
         player_points[0][0] = [207 ,97]
@@ -52,6 +64,8 @@ def get_video_initial_points(video_number):
         player_points[4][0] = [498, 186]
         player_points = player_points.astype(np.float32)
         print static_points
+        """
+        new_feature_points = np.zeros((2,1,2))
         
     elif video_number == 2:    
         #2nd video static points
@@ -70,13 +84,16 @@ def get_video_initial_points(video_number):
         player_points[3][0] = p0[4] # other side / left side
         player_points = player_points.astype(np.float32)
         """
+        new_feature_points = np.zeros((2,1,2))
+
     elif video_number == 3:    
         # 3rd video static points
         static_points = np.zeros((4,1,2))
-        static_points[0][0] = [343, 160] #nearer pole
-        static_points[1][0] = p0[74] #guy sitting across, his shoe
-        static_points[2][0] = [238, 267]
-        static_points[3][0] = [238, 232]
+        static_points[0][0] = [170, 141] #nearer pole
+        static_points[1][0] = [163, 182]
+        static_points[2][0] = [160, 232]
+        static_points[3][0] = [493, 281]
+        #static_points[3][0] = [238, 232]
         static_points = static_points.astype(np.float32)
         """
         # 3rd video player points
@@ -86,6 +103,14 @@ def get_video_initial_points(video_number):
         player_points[2][0] = p0[31] # guy serving
         player_points = player_points.astype(np.float32)
         """
+
+        new_feature_points = np.zeros((6,1,2))
+        new_feature_points[0][0] = [551, 190]
+        new_feature_points[1][0] = [26, 190]
+        new_feature_points[2][0] = [37, 116]
+        new_feature_points[3][0] = [627, 136]
+        new_feature_points[4][0] = [94, 180]
+        new_feature_points[5][0] = [396, 276]
     elif video_number == 5:
         # 5th video static points
         
@@ -180,8 +205,9 @@ def read_video_file(file_name, video_number):
         gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         
         new_static_points, st, err = cv2.calcOpticalFlowPyrLK(gray_old_frame, gray_img, static_points, None, **static_lk_params)
-        #new_player_points, st_2, err_2 = cv2.calcOpticalFlowPyrLK(gray_old_frame, gray_img, player_points, None, **player_lk_params)
         
+        #new_player_points, st_2, err_2 = cv2.calcOpticalFlowPyrLK(gray_old_frame, gray_img, player_points, None, **player_lk_params)
+        new_static_points, err, st = check_for_large_movement_of_static_points(new_static_points, err, st)
         # here the st==1 means that the point is found in the next frame
         # so it means that it asks for the "good" points from the
         # calcOpticalFlowPyrLK function
@@ -227,7 +253,7 @@ def read_video_file(file_name, video_number):
         #player_points = good_new_2.reshape(-1,1,2)
 
 def main():
-    file_name = "input/beachVolleyball5.mov"
+    file_name = "input/beachVolleyball3.mov"
     video_number = int(raw_input('Enter video number: '))
     read_video_file(file_name, video_number)
 

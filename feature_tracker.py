@@ -4,9 +4,11 @@ import numpy as np
 import numpy.linalg as la
 import matplotlib.pyplot as plt
 
+import file_handler as fh
+
 def check_for_large_movement_of_static_points(new_static_points, err, st):
 
-    for k,err in enumerate(err):
+    for k, err in enumerate(err):
         if err > 15.0:
             print "DELETING LOL"
             print err
@@ -14,7 +16,7 @@ def check_for_large_movement_of_static_points(new_static_points, err, st):
             new_static_points = np.delete(new_static_points, [k], axis=0)
             err = np.delete(err, [k], axis=0)
             st = np.delete(st, [k], axis=0)
-    return new_static_points, err, st        
+    return new_static_points, err, st
 
 def check_static_points(number_of_static, old_number_of_static, good_new, img, print_frame_number, new_feature_points):
     if (number_of_static < old_number_of_static):
@@ -32,7 +34,7 @@ def check_static_points(number_of_static, old_number_of_static, good_new, img, p
 def get_frame_grid(img, print_frame_number):
     plt.figure()
     plt.imshow(img, cmap="gray")
-    plt.savefig('frame_' + str(print_frame_number) + '.jpg')
+    plt.savefig('frame_' + str(print_frame_number) + '.png')
     plt.close()
 
     print_frame_number = print_frame_number + 1
@@ -168,16 +170,17 @@ def get_video_initial_points(video_number):
         """
     return static_points, new_feature_points
 
-def read_video_file(file_name, video_number):
+def read_video_file(frames, video_number, path):
 
     # this is to keep track of the frames that are copied for our reference whenever a point goes off screen
     print_frame_number = 0
 
-    cap = cv2.VideoCapture(file_name)
-    frame_count = int(cap.get(cv.CV_CAP_PROP_FRAME_COUNT))
+    # cap = cv2.VideoCapture(file_name)
+    # frame_count = int(cap.get(cv.CV_CAP_PROP_FRAME_COUNT))
     
     # read the first frame of video and convert to grayscale
-    _,old_frame = cap.read()
+    # _,old_frame = cap.read()
+    old_frame = frames[0]
 
     gray_old_frame = cv2.cvtColor(old_frame, cv2.COLOR_BGR2GRAY)
     color = np.random.randint(0,255,(100,3))
@@ -199,8 +202,12 @@ def read_video_file(file_name, video_number):
 
     print_frame_number = get_frame_grid(old_frame, print_frame_number)
 
-    for i in range(1,frame_count):
-        _,img = cap.read()
+    ret = []
+
+    # for i in range(1,frame_count):
+    for i in range(1, len(frames)):
+    #     _,img = cap.read()
+        img = frames[i]
 
         gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         
@@ -231,6 +238,7 @@ def read_video_file(file_name, video_number):
             #print a,b,c,d,j, (color[j].tolist())
             #cv2.line(mask, (a,b),(c,d), color[i].tolist(), 2)
             cv2.circle(img,(a,b),5,color[j].tolist(),-1)
+            cv2.putText(img, str((a,b)), (a,b), cv2.FONT_HERSHEY_PLAIN, 1.5, color[j], 1, cv2.CV_AA)
         """
         good_new_2 = new_player_points[st_2==1]
         good_old_2 = player_points[st_2==1]
@@ -243,17 +251,32 @@ def read_video_file(file_name, video_number):
         
         #image = cv2.add(img,mask)
         """
-        cv2.imshow('frame',img)
-        k = cv2.waitKey(30) & 0xff
-        if k == 27:
-            break
         gray_old_frame = gray_img.copy()
 
         static_points = good_new.reshape(-1,1,2)
+
+        curr = []
+        for p in good_new:
+            curr.append((p[0], p[1]))
+        print i, ":", curr
+
+        ret.append(curr)
+        fh.write_single_list_to_file(path, curr)
+
+        cv2.imshow('frame', img)
+        k = cv2.waitKey(30) & 0xff
+        if k == 27:
+            break
+
+        # TO BE REMOVED. USED FOR MANUAL INTERVENTION
+        # if i > 610:
+        #     cv2.waitKey(0)
+
         #player_points = good_new_2.reshape(-1,1,2)
+    return ret
 
 def main():
-    file_name = "input/beachVolleyball3.mov"
+    file_name = "input/beachVolleyball1.mov"
     video_number = int(raw_input('Enter video number: '))
     read_video_file(file_name, video_number)
 

@@ -37,6 +37,39 @@ def generate_corresponding_pairs(points1, points2, threshold=5):
     return pairs
 
 
+def eucl_dist(p1, p2):
+    # type: ((int, int), (int, int)) -> float
+
+    return math.sqrt(math.pow(p1[0] - p2[0], 2) + math.pow(p1[1] - p2[1], 2))
+
+
+def find_correspondence(pts1, pts2):
+    # type: ((int, int)[], (int, int)[]) -> ((int, int)[], (int, int)[])
+    """
+    Purpose:
+        Find corresponding points between two sets of points.
+    Parameters:
+        pts1 - the first set of points
+        pts2 - the second set of points
+    Returns:
+        ret1 - the list of corresponding points from the first set
+        ret2 - the list of corresponding points from the second set
+    """
+    corrs = {}
+    for item in pts1:
+        corrs[item] = []
+        for item2 in pts2:
+            if eucl_dist(item2, item) < 5:
+                corrs[item].append(item2)
+    corrs = {k: v for k, v in corrs.items() if len(v) > 0}
+    ret1 = []
+    ret2 = []
+    for item in corrs:
+        ret1.append(item)
+        ret2.append(corrs[item][0])
+    return ret1, ret2
+
+
 def generate_homography_matrix_list(points):
     # type: ((int, int)[]) -> np.matrix[]
     """
@@ -59,14 +92,35 @@ def generate_homography_matrix_list(points):
     for i in range(1, len(points)):
         curr = points[i]
 
-        pairs = generate_corresponding_pairs(prev, curr)
+        # pairs = generate_corresponding_pairs(prev, curr)
+        #
+        # points_curr = []
+        # points_prev = []
+        # for j in range(len(pairs)):
+        #     points_curr.append(pairs[j][0])
+        #     points_prev.append(pairs[j][1])
+        # homo_mat = hg.find_homography(points_curr, points_prev)
 
-        points_curr = []
-        points_prev = []
-        for j in range(len(pairs)):
-            points_curr.append(pairs[j][0])
-            points_prev.append(pairs[j][1])
-        homo_mat = hg.find_homography(points_curr, points_prev)
+        # pts_prev, pts_curr = find_correspondence(prev, curr)
+        pts_prev = points[i - 1]
+        pts_curr = points[i]
+
+        acc = 0
+        if len(pts_prev) is len(pts_curr):
+            for x in range(len(pts_prev)):
+                acc += eucl_dist(pts_prev[x], pts_curr[x])
+        if acc < len(pts_prev):
+            homo_mat = np.eye(3)
+        else:
+            # homo_mat = hg.find_homography(pts_curr, pts_prev)
+            homo_mat = cv2.findHomography(np.array(pts_curr, np.float32), np.array(pts_prev, np.float32))
+            homo_mat = np.matrix(homo_mat[0])
+
+        print "i =", i
+        print "pts_prev:", pts_prev
+        print "pts_curr:", pts_curr
+        print "homo_mat:\n", homo_mat
+        print "-------------------------------------------------"
 
         matrices.append(homo_mat)
 
@@ -141,14 +195,14 @@ def create_full_court_stitch(frames, points, path):
 
     homos = []
     positions = []
-    for i in range(len(matrices)):
+    for i in range(len(matrices)): # changed from frame
         temp = np.dot(temp, matrices[i])
         homos.append(temp)
 
         (h, w) = frames[i].shape[:2]
         l, t, r, b = get_output_size(h, w, temp)
-        positions.append((l, t, r, b))
-    positions = np.array(positions, np.int32)
+        positions.append([l, t, r, b])
+    positions = np.array(positions)
 
     offset_left = np.amin(positions[:, 0])
     offset_top = np.amin(positions[:, 1])
@@ -158,16 +212,30 @@ def create_full_court_stitch(frames, points, path):
     max_w = int(round(abs(offset_left) + offset_right))
     max_h = int(round(abs(offset_top) + offset_bottom))
 
-    for i in range(len(frames)):
+    print "offset_left:", offset_left
+    print "offset_top:", offset_top
+    print "offset_right:", offset_right
+    print "offset_bottom:", offset_bottom
+    print "max_w:", max_w
+    print "max_h:", max_h
+
+    for i in range(len(homos)): # changed from frame
         # step 2: calculate the homography matrix to use
         homo = np.array(homos[i], copy=True)
         # setting left offset for current frame after homography
-        homo[0, 2] += abs(offset_left)
+        # homo[0, 2] += abs(offset_left)
         # setting top offset for current frame after homography
-        homo[1, 2] += abs(offset_top)
+        # homo[1, 2] += abs(offset_top)
+
+        cv2.imshow('frame', frames[i])
 
         # step 3: generate the output frame
-        warped = cv2.warpPerspective(frames[i], homo, max_w, max_h)
+        # warped = cv2.warpPerspective(frames[i], homo, (max_w, max_h), flags=cv2.INTER_NEAREST)
+        warped = cv2.warpPerspective(frames[i], homo, (800, 500), flags=cv2.INTER_NEAREST)
+        cv2.imshow('warped', warped)
+        cv2.waitKey(1)
+
+        print "showing i:", i
 
         if i is 0:
             output = warped
@@ -186,3 +254,5 @@ def create_full_court_stitch(frames, points, path):
 
         # step 4: save the output frame to a specified destination
         cv2.imwrite(path + 'pano_' + '{:04}'.format(i) + '.jpg', output)
+
+    cv2.destroyAllWindows()

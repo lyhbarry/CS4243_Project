@@ -200,12 +200,12 @@ def read_video_file(frames, video_number, path):
     # this is to keep track of the frames that are copied for our reference whenever a point goes off screen
     print_frame_number = 0
 
-    # cap = cv2.VideoCapture(file_name)
-    # frame_count = int(cap.get(cv.CV_CAP_PROP_FRAME_COUNT))
+    cap = cv2.VideoCapture(file_name)
+    #frame_count = int(cap.get(cv.CV_CAP_PROP_FRAME_COUNT))
     
     # read the first frame of video and convert to grayscale
-    # _,old_frame = cap.read()
-    old_frame = frames[0]
+    _,old_frame = cap.read()
+    #old_frame = frames[0]
 
     gray_old_frame = cv2.cvtColor(old_frame, cv2.COLOR_BGR2GRAY)
     color = np.random.randint(0,255,(100,3))
@@ -235,7 +235,6 @@ def read_video_file(frames, video_number, path):
         print i
         _,img = cap.read()
 
-    ret = []
 
     # for i in range(1,frame_count):
     for i in range(1, len(frames)):

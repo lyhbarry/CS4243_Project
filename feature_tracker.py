@@ -3,17 +3,6 @@ import cv2.cv as cv
 import numpy as np
 import numpy.linalg as la
 import matplotlib.pyplot as plt
-import file_handler as fh
-
-def retrack_players(new_player_points, player_to_retrack, new_retrack_player_points, img, print_frame_number):
-
-    print_frame_number = get_frame_grid(img, print_frame_number)
-    new_retrack_player_point = new_retrack_player_points[0]
-    new_retrack_player_points = np.delete(new_retrack_player_points,[0], axis=0)
-    new_player_points[player_to_retrack][0] = new_retrack_player_point 
-
-    return new_player_points, new_retrack_player_points, print_frame_number
-
 
 import file_handler as fh
 
@@ -29,10 +18,9 @@ def check_for_large_movement_of_static_points(new_static_points, err, st):
             st = np.delete(st, [k], axis=0)
     return new_static_points, err, st
 
-def check_static_points(number_of_static, old_number_of_static, good_new, img, print_frame_number, new_feature_points, frame_count):
+def check_static_points(number_of_static, old_number_of_static, good_new, img, print_frame_number, new_feature_points):
     if (number_of_static < old_number_of_static):
         print_frame_number = get_frame_grid(img, print_frame_number)
-        print frame_count
         new_feature = new_feature_points[0]
         print new_feature
         new_feature_points = np.delete(new_feature_points,[0], axis=0)
@@ -68,31 +56,18 @@ def get_video_initial_points(video_number):
         static_points[2][0] = [39, 142] # good bottom of left pole
         static_points[3][0] = [88, 144] # left side of the court
         static_points = static_points.astype(np.float32)
-        
+        """
         # 1st video player points
-        # players are ordered from left to right in the first frame
-        player_points = np.zeros((4,1,2))
-        player_points[0][0] = [94, 80]
-        player_points[1][0] = [179, 66]
-        player_points[2][0] = [226, 106]
-        player_points[3][0] = [498, 236]
+        player_points = np.zeros((5,1,2))
+        player_points[0][0] = [207 ,97]
+        player_points[1][0] = [175, 61]
+        player_points[2][0] = [93, 71]
+        player_points[3][0] = [508, 163]
+        player_points[4][0] = [498, 186]
         player_points = player_points.astype(np.float32)
         print static_points
-        
+        """
         new_feature_points = np.zeros((2,1,2))
-
-
-        player_retrack_frames = [373, 420, 580, 620, 680]
-        players_to_retrack = [3, 3, 3, 1, 0]
-        new_retrack_player_points = np.zeros((5,1,2))
-        new_retrack_player_points[0][0] = [328, 209]
-        new_retrack_player_points[1][0] = [367, 224]
-        new_retrack_player_points[2][0] = [373, 173]
-        new_retrack_player_points[3][0] = [271, 115]
-        new_retrack_player_points[4][0] = [297, 32]
-
-
-        frame_count = 746
         
     elif video_number == 2:    
         #2nd video static points
@@ -138,8 +113,6 @@ def get_video_initial_points(video_number):
         new_feature_points[3][0] = [627, 136]
         new_feature_points[4][0] = [94, 180]
         new_feature_points[5][0] = [396, 276]
-    
-
     elif video_number == 5:
         # 5th video static points
         
@@ -195,7 +168,7 @@ def get_video_initial_points(video_number):
         player_points[0][0] = p0[21] # right side, bending
         player_points = player_points.astype(np.float32)
         """
-    return static_points, player_points, new_feature_points, frame_count, player_retrack_frames, players_to_retrack, new_retrack_player_points
+    return static_points, new_feature_points
 
 def read_video_file(frames, video_number, path):
 
@@ -214,12 +187,12 @@ def read_video_file(frames, video_number, path):
 
     #parameters to detect and track feature points
     static_lk_params = dict(winSize  = (10,10),maxLevel = 2,criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
-    player_lk_params = dict(winSize  = (5,5),maxLevel = 2,criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+    player_lk_params = dict(winSize  = (15,15),maxLevel = 2,criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
     feature_params = dict( maxCorners = 200, qualityLevel = 0.3, minDistance = 7, blockSize = 7 )
     new_feature_params = dict(maxCorners = 10, qualityLevel = 0.3, minDistance = 7, blockSize = 7)
     #mask = np.zeros_like(old_frame)
     
-    static_points, player_points, new_feature_points, frame_count, player_retrack_frames, players_to_retrack, new_retrack_player_points = get_video_initial_points(video_number)
+    static_points, new_feature_points = get_video_initial_points(video_number)
 
     #number of static points and player points
     number_of_static = len(static_points)
@@ -240,20 +213,8 @@ def read_video_file(frames, video_number, path):
         
         new_static_points, st, err = cv2.calcOpticalFlowPyrLK(gray_old_frame, gray_img, static_points, None, **static_lk_params)
         
-        new_player_points, st_2, err_2 = cv2.calcOpticalFlowPyrLK(gray_old_frame, gray_img, player_points, None, **player_lk_params)
-        #print err_2[3]
+        #new_player_points, st_2, err_2 = cv2.calcOpticalFlowPyrLK(gray_old_frame, gray_img, player_points, None, **player_lk_params)
         new_static_points, err, st = check_for_large_movement_of_static_points(new_static_points, err, st)
-        
-        if (i == player_retrack_frame):
-            new_player_points, new_retrack_player_points, print_frame_number = retrack_players(new_player_points, player_to_retrack, new_retrack_player_points, img, print_frame_number)
-
-            if ((len(players_to_retrack) > 0) and (len(player_retrack_frames) > 0)):
-                player_retrack_frame = player_retrack_frames.pop(0)
-                player_to_retrack = players_to_retrack.pop(0)
-
-            else:
-                player_retrack_frame = 0
-
         # here the st==1 means that the point is found in the next frame
         # so it means that it asks for the "good" points from the
         # calcOpticalFlowPyrLK function
@@ -264,7 +225,7 @@ def read_video_file(frames, video_number, path):
         # points to see if we have lost any points
         number_of_static = len(good_new)
         
-        good_new, new_feature_points, print_frame_number = check_static_points(number_of_static, old_number_of_static, good_new, img, print_frame_number, new_feature_points, frame_count)
+        good_new, new_feature_points, print_frame_number = check_static_points(number_of_static, old_number_of_static, good_new, img, print_frame_number, new_feature_points)
 
         # supposed to regain same number of points
         number_of_static = len(good_new)
@@ -278,11 +239,9 @@ def read_video_file(frames, video_number, path):
             #cv2.line(mask, (a,b),(c,d), color[i].tolist(), 2)
             cv2.circle(img,(a,b),5,color[j].tolist(),-1)
             cv2.putText(img, str((a,b)), (a,b), cv2.FONT_HERSHEY_PLAIN, 1.5, color[j], 1, cv2.CV_AA)
-
         """
         good_new_2 = new_player_points[st_2==1]
         good_old_2 = player_points[st_2==1]
-
         for i,(new,old) in enumerate(zip(good_new_2,good_old_2)):
             a,b = new.ravel()
             c,d = old.ravel()
@@ -290,7 +249,6 @@ def read_video_file(frames, video_number, path):
             cv2.circle(img,(a,b),5,color[i].tolist(),-1)
         
         #image = cv2.add(img,mask)
-
         """
         gray_old_frame = gray_img.copy()
 
@@ -305,7 +263,6 @@ def read_video_file(frames, video_number, path):
         fh.write_single_list_to_file(path, curr)
 
         cv2.imshow('frame', img)
-
         k = cv2.waitKey(30) & 0xff
         if k == 27:
             break
@@ -316,7 +273,6 @@ def read_video_file(frames, video_number, path):
 
         #player_points = good_new_2.reshape(-1,1,2)
     return ret
-
 
 def main():
     file_name = "input/beachVolleyball1.mov"

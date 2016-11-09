@@ -4,67 +4,34 @@ import numpy as np
 import numpy.linalg as la
 import matplotlib.pyplot as plt
 
-def read_video_file(file_name, video_number):
-    cap = cv2.VideoCapture(file_name)
-    frame_count = int(cap.get(cv.CV_CAP_PROP_FRAME_COUNT))
-    
-    # read the first frame of video and convert to grayscale
-    _,old_frame = cap.read()
+def check_static_points(number_of_static, old_number_of_static, good_new, img, print_frame_number, new_feature_points):
+    if (number_of_static < old_number_of_static):
+        new_feature = new_feature_points[0]
+        print new_feature
+        new_feature_points = np.delete(new_feature_points,[0], axis=0)
+        print "BEN SOON OVER HERE"
+        print new_feature_points
+        good_new = np.append(good_new, new_feature, axis=0)
+        print_frame_number = get_frame_grid(img, print_frame_number)
+        print good_new
+        good_new = good_new.astype(np.float32)
+    return good_new, new_feature_points, print_frame_number    
 
-    """
-    (h, w) = old_frame.shape[:2]
-    print h, w
-    offset_left = 0
-    offset_top = old_frame.shape[0]/4
-    offset_right = 0
-    offset_bottom = 0
-
-    temp = np.array(old_frame, copy=True)
-    temp = temp[offset_top:h-offset_bottom, offset_left:w-offset_right]
-    gray_old_frame = cv2.cvtColor(temp, cv2.COLOR_BGR2GRAY)
-    """
-    gray_old_frame = cv2.cvtColor(old_frame, cv2.COLOR_BGR2GRAY)
-    color = np.random.randint(0,255,(100,3))
-
-    #parameters to detect and track feature points
-    static_lk_params = dict(winSize  = (10,10),maxLevel = 2,criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
-    player_lk_params = dict(winSize  = (15,15),maxLevel = 2,criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
-    feature_params = dict( maxCorners = 200, qualityLevel = 0.3, minDistance = 7, blockSize = 7 )
-    new_feature_params = dict(maxCorners = 10, qualityLevel = 0.3, minDistance = 7, blockSize = 7)
-    #mask = np.zeros_like(old_frame)
-    
-    # this function finds A LOT of features 
-    p0 = cv2.goodFeaturesToTrack(gray_old_frame, mask = None, **feature_params)
-    #print p0
-
-    #number of static points and player points
-    number_of_static = 0
-    number_of_player = 0
-    old_number_of_static = 0
-    old_number_of_player = 0
-
-    # images to find coordinates of feature points better
+def get_frame_grid(img, print_frame_number):
     plt.figure()
-    plt.imshow(gray_old_frame, cmap="gray")
-    plt.savefig('first_gray_frame.jpg')
-    plt.close()
-    plt.imshow(old_frame)
-    plt.savefig('first_color_frame.jpg')
+    plt.imshow(img, cmap="gray")
+    plt.savefig('frame_' + str(print_frame_number) + '.jpg')
     plt.close()
 
-    first_frame_features = p0
-    for i,(first_frame_feature) in enumerate(zip(first_frame_features)):
-        #print first_frame_feature[0][0]
-        x_coor = first_frame_feature[0][0][0]
-        y_coor = first_frame_feature[0][0][1]
+    print_frame_number = print_frame_number + 1
 
-        if 80.0 < x_coor < 100.0:
-            print i
-            print x_coor
-            print y_coor
-            cv2.circle(gray_old_frame,(x_coor,y_coor),5,color[i].tolist(),-1)
-    cv2.imwrite('first_gray_frame_features.jpg', gray_old_frame)
-    
+    return print_frame_number
+
+def get_video_initial_points(video_number):
+
+    """
+    The coordinates declared are static points on the video which are inside the frame at all times
+    """
     if video_number == 1:
         # 1st video static points
         
@@ -94,7 +61,7 @@ def read_video_file(file_name, video_number):
         static_points[2][0] = [531, 89] 
         static_points[3][0] = [580, 128]
         static_points = static_points.astype(np.float32)
-
+        """
         #2nd video player points
         player_points = np.zeros((4,1,2))
         player_points[0][0] = p0[60] # this side / left side
@@ -102,7 +69,7 @@ def read_video_file(file_name, video_number):
         player_points[2][0] = p0[29] # other side / right side
         player_points[3][0] = p0[4] # other side / left side
         player_points = player_points.astype(np.float32)
-        
+        """
     elif video_number == 3:    
         # 3rd video static points
         static_points = np.zeros((4,1,2))
@@ -111,14 +78,14 @@ def read_video_file(file_name, video_number):
         static_points[2][0] = [238, 267]
         static_points[3][0] = [238, 232]
         static_points = static_points.astype(np.float32)
-
+        """
         # 3rd video player points
         player_points = np.zeros((3,1,2))
         player_points[0][0] = p0[-12] # guy bending over
         player_points[1][0] = p0[9] # guy serving
         player_points[2][0] = p0[31] # guy serving
         player_points = player_points.astype(np.float32)
-
+        """
     elif video_number == 5:
         # 5th video static points
         
@@ -131,7 +98,7 @@ def read_video_file(file_name, video_number):
         static_points[3][0] = [102, 258]
         static_points[4][0] = [202, 173]
         static_points = static_points.astype(np.float32)
-
+        """
         player_points = np.zeros((6,1,2))
         player_points[0][0] = p0[35] # other side/ right guy      needs work
         player_points[1][0] = p0[24] # other side/ left guy       good
@@ -140,7 +107,14 @@ def read_video_file(file_name, video_number):
         player_points[4][0] = p0[19] # this side /closer guy      good
         player_points[5][0] = p0[21] # this side / closer guy     good
         player_points = player_points.astype(np.float32)
+        """
+
         
+        new_feature_points = np.zeros((2,1,2))
+        new_feature_points[0][0] = [131, 230]
+        new_feature_points[1][0] = [446, 231]
+        new_feature_points = new_feature_points.astype(np.float32)
+
     elif video_number == 6:
         # 6th video static points
         
@@ -150,9 +124,9 @@ def read_video_file(file_name, video_number):
         static_points[2][0] = [557, 164]
         static_points[3][0] = [590, 300]
         static_points = static_points.astype(np.float32)
-
+        """
         player_points = np.zeros((1,1,2))
-        
+        """
     elif video_number == 7:
         # 7th video static points
         
@@ -162,90 +136,73 @@ def read_video_file(file_name, video_number):
         static_points[2][0] = [66, 207] # pole nearer to the camera
         static_points[3][0] = [197,334]
         static_points = static_points.astype(np.float32)
-
+        """
         player_points = np.zeros((1,1,2))
         player_points[0][0] = p0[21] # right side, bending
         player_points = player_points.astype(np.float32)
-    print static_points
+        """
+    return static_points, new_feature_points
+
+def read_video_file(file_name, video_number):
+
+    # this is to keep track of the frames that are copied for our reference whenever a point goes off screen
+    print_frame_number = 0
+
+    cap = cv2.VideoCapture(file_name)
+    frame_count = int(cap.get(cv.CV_CAP_PROP_FRAME_COUNT))
+    
+    # read the first frame of video and convert to grayscale
+    _,old_frame = cap.read()
+
+    gray_old_frame = cv2.cvtColor(old_frame, cv2.COLOR_BGR2GRAY)
+    color = np.random.randint(0,255,(100,3))
+
+    #parameters to detect and track feature points
+    static_lk_params = dict(winSize  = (10,10),maxLevel = 2,criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+    player_lk_params = dict(winSize  = (15,15),maxLevel = 2,criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+    feature_params = dict( maxCorners = 200, qualityLevel = 0.3, minDistance = 7, blockSize = 7 )
+    new_feature_params = dict(maxCorners = 10, qualityLevel = 0.3, minDistance = 7, blockSize = 7)
+    #mask = np.zeros_like(old_frame)
+    
+    static_points, new_feature_points = get_video_initial_points(video_number)
+
+    #number of static points and player points
+    number_of_static = len(static_points)
+    #number_of_player = len(player_points)
+    old_number_of_static = len(static_points)
+    #old_number_of_player = len(player_points)
+
+    print_frame_number = get_frame_grid(old_frame, print_frame_number)
+
     for i in range(1,frame_count):
         _,img = cap.read()
-        """
-        (h, w) = img.shape[:2]
 
-        offset_left = 0
-        offset_top = img.shape[0]/4
-        offset_right = 0
-        offset_bottom = 0
-
-        temp = np.array(img, copy=True)
-        temp = temp[offset_top:h-offset_bottom, offset_left:w-offset_right]
-        gray_img = cv2.cvtColor(temp, cv2.COLOR_BGR2GRAY)
-        """
         gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        
-        # use this line when you want to see all the movement of all the features
-        #static_points, st, err = cv2.calcOpticalFlowPyrLK(gray_old_frame, gray_img, p0, None, **static_lk_params)
-
-        # use this line when you want to see the movement of specific points
         
         new_static_points, st, err = cv2.calcOpticalFlowPyrLK(gray_old_frame, gray_img, static_points, None, **static_lk_params)
         #new_player_points, st_2, err_2 = cv2.calcOpticalFlowPyrLK(gray_old_frame, gray_img, player_points, None, **player_lk_params)
-        print static_points, new_static_points
-        #print err
-        #print err_2
-        # use this section when looking at ALL feature points 
-        """
-        good_new = static_points[st==1]
-        good_old = p0[st==1]
-        """
-        # use this section when looking for specific points
         
+        # here the st==1 means that the point is found in the next frame
+        # so it means that it asks for the "good" points from the
+        # calcOpticalFlowPyrLK function
         good_new = new_static_points[st==1]
         good_old = static_points[st==1]
-        print good_new
-        """
-        if i == 1:
-            number_of_static = len(static_points)
-            old_number_of_static = len(static_points)
-        else:
-            number_of_static = len(good_new)
-            print number_of_static
-            print old_number_of_static
-            if number_of_static < old_number_of_static:
-                plt.imshow(img)
-                plt.savefig('new_points_to_find.jpg')
-                plt.close()
-                #good_new[-1] = [144, 250]
-                #print (good_new.append([144, 250]))
-                good_new = np.append(good_new, [[144, 250]], axis=0)
-                print good_new
-                print good_new[0]
-                print good_new[1]
-                print good_new[2]
-                print good_new[3]
-                print "HERE BEN"
-                print static_points
-            number_of_static = len(static_points)
-        """    
+
+        # here we compare number of found static to the previous number of static
+        # points to see if we have lost any points
+        number_of_static = len(good_new)
         
-        #print good_new
-        #ensure number of static points is the same, if not change to another
-        """
-        if i == 1:
-            number_of_static = len(good_old)
-        else:
-            if len(good_new) < number_of_static:
-                p0 = cv2.goodFeaturesToTrack(gray_old_frame, mask = None, **new_feature_params)
-                print("TRACKING NEW POINTS")
-                for i, point in enumerate(zip(p0)):
-                    print point
-                    print point[0]
-                    good_new[-1] = point[0][0]
-        """
+        good_new, new_feature_points, print_frame_number = check_static_points(number_of_static, old_number_of_static, good_new, img, print_frame_number, new_feature_points)
+
+        # supposed to regain same number of points
+        number_of_static = len(good_new)
+        
         for j,(new,old) in enumerate(zip(good_new,good_old)):
-            print j
+            
             a,b = new.ravel()
             c,d = old.ravel()
+            #print "HERE"
+            #print a,b,c,d,j, (color[j].tolist())
             #cv2.line(mask, (a,b),(c,d), color[i].tolist(), 2)
             cv2.circle(img,(a,b),5,color[j].tolist(),-1)
         """
@@ -257,24 +214,20 @@ def read_video_file(file_name, video_number):
             c,d = old.ravel()
             #cv2.line(mask, (a,b),(c,d), color[i].tolist(), 2)
             cv2.circle(img,(a,b),5,color[i].tolist(),-1)
-        """
-        #image = cv2.add(img,mask)
         
+        #image = cv2.add(img,mask)
+        """
         cv2.imshow('frame',img)
         k = cv2.waitKey(30) & 0xff
         if k == 27:
             break
         gray_old_frame = gray_img.copy()
-        # use this line for ALL feature points
-        #p0 = good_new.reshape(-1,1,2)
 
-        # use this line for specific points
-        #print (good_new.reshape(-1,1,2))
         static_points = good_new.reshape(-1,1,2)
         #player_points = good_new_2.reshape(-1,1,2)
 
 def main():
-    file_name = "input/beachVolleyball6.mov"
+    file_name = "input/beachVolleyball5.mov"
     video_number = int(raw_input('Enter video number: '))
     read_video_file(file_name, video_number)
 

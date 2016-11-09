@@ -1,6 +1,6 @@
 # Python compiled code #
 ########################
-.pyc
+*.pyc
 
 # Test folders #
 ################

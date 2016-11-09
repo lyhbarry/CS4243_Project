@@ -7,14 +7,17 @@ Homography module
 import numpy as np
 
 
-''' Constructs the matrix
-Args:
-    pts_src (list<tuple<int, int>>): List of points from the source image
-    pts_dst (list<tuple<int, int>>): List of points from the destination image
-Returns:
-    (np.matrix): A matrix to be solved using SVD
-'''
 def construct_m(pts_p, pts_c):
+    # type: ((int, int)[], (int, int)[]) -> np.matrix
+    """
+    Purpose:
+        Constructs the matrix
+    Parameters:
+        pts_p - list of points from the source image
+        pts_c - list of points from the destination image
+    Returns:
+        A matrix to be solved using SVD
+    """
     A = []
     for i in range(len(pts_p)):
         up = pts_p[i][0]
@@ -26,24 +29,32 @@ def construct_m(pts_p, pts_c):
     return np.matrix(A)
 
 
-''' Calculates the homography matrix between two images
-Args:
-    pts_src (list<tuple<int, int>>): List of points from the source image
-    pts_dst (list<tuple<int, int>>): List of points from the destination image
-Returns:
-    homo_mat (np.matrix): The homography matrix
-'''
 def find_homography(pts_src, pts_dsc):
-    m = construct_m(pts_src, pts_dsc)
+    # type: ((int, int)[], (int, int)[]) -> np.matrix
+    """
+    Purpose:
+        Calculates the homography matrix between two images
+    Parameters:
+        pts_src - list of points from the source image
+        pts_dst - list of points from the destination image
+    Returns:
+        The homography matrix
+    """
 
-    # note that V is already transposed
-    _, _, V = np.linalg.svd(m, full_matrices=True)
+    if len(pts_src) >= 4:
+        m = construct_m(pts_src, pts_dsc)
 
-    # the last column of V is the homography matrix
-    homo_mat = np.matrix(np.reshape(V[-1], (3, 3)))
-    # setting all super small values to zero
-    homo_mat[abs(homo_mat) < 1e-14] = 0
-    # normalising the matrix such that h33 to 1
-    homo_mat = homo_mat / homo_mat[-1, -1]
+        # note that V is already transposed
+        _, _, V = np.linalg.svd(m, full_matrices=True)
+
+        # the last column of V is the homography matrix
+        homo_mat = np.matrix(np.reshape(V[-1], (3, 3)))
+        print "len(V[-1]) =", len(V[-1])
+        # setting all super small values to zero
+        homo_mat[abs(homo_mat) < 1e-14] = 0
+        # normalising the matrix such that h33 to 1
+        homo_mat = homo_mat / homo_mat[-1, -1]
+    else:
+        homo_mat = np.eye(3)
 
     return homo_mat

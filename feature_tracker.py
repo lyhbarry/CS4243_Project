@@ -15,6 +15,8 @@ def retrack_players(new_player_points, player_to_retrack, new_retrack_player_poi
     return new_player_points, new_retrack_player_points, print_frame_number
 
 
+import file_handler as fh
+
 def check_for_large_movement_of_static_points(new_static_points, err, st):
 
     for k, err in enumerate(err):
@@ -227,14 +229,6 @@ def read_video_file(frames, video_number, path):
 
     print_frame_number = get_frame_grid(old_frame, print_frame_number)
 
-    player_retrack_frame = player_retrack_frames.pop(0)
-    player_to_retrack = players_to_retrack.pop(0)
-    print(player_retrack_frames)
-    print(players_to_retrack)
-    for i in range(1,frame_count):
-        print i
-        _,img = cap.read()
-
     ret = []
 
     # for i in range(1,frame_count):
@@ -285,6 +279,7 @@ def read_video_file(frames, video_number, path):
             cv2.circle(img,(a,b),5,color[j].tolist(),-1)
             cv2.putText(img, str((a,b)), (a,b), cv2.FONT_HERSHEY_PLAIN, 1.5, color[j], 1, cv2.CV_AA)
 
+        """
         good_new_2 = new_player_points[st_2==1]
         good_old_2 = player_points[st_2==1]
 
@@ -295,15 +290,32 @@ def read_video_file(frames, video_number, path):
             cv2.circle(img,(a,b),5,color[i].tolist(),-1)
         
         #image = cv2.add(img,mask)
-        
-        cv2.imshow('frame',img)
+
+        """
+        gray_old_frame = gray_img.copy()
+
+        static_points = good_new.reshape(-1,1,2)
+
+        curr = []
+        for p in good_new:
+            curr.append((p[0], p[1]))
+        print i, ":", curr
+
+        ret.append(curr)
+        fh.write_single_list_to_file(path, curr)
+
+        cv2.imshow('frame', img)
 
         k = cv2.waitKey(30) & 0xff
         if k == 27:
             break
 
-        static_points = good_new.reshape(-1,1,2)
-        player_points = good_new_2.reshape(-1,1,2)
+        # TO BE REMOVED. USED FOR MANUAL INTERVENTION
+        # if i > 610:
+        #     cv2.waitKey(0)
+
+        #player_points = good_new_2.reshape(-1,1,2)
+    return ret
 
 
 def main():

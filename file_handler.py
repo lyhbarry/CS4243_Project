@@ -26,7 +26,7 @@ def read_from_file(path):
             ret = []
             for p in points:
                 coord = p.split(',')
-                ret.append((int(coord[0]), int(coord[1])))
+                ret.append((float(coord[0]), float(coord[1])))
             points_list.append(ret)
 
     return points_list

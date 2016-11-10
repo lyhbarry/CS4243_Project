@@ -29,7 +29,7 @@ def check_static_points(number_of_static, old_number_of_static, good_new, img, p
         good_new = np.append(good_new, new_feature, axis=0)
         print good_new
         good_new = good_new.astype(np.float32)
-    return good_new, new_feature_points, print_frame_number    
+    return good_new, new_feature_points, print_frame_number
 
 def get_frame_grid(img, print_frame_number):
     plt.figure()
@@ -48,9 +48,9 @@ def get_video_initial_points(video_number):
     """
     if video_number == 1:
         # 1st video static points
-        
+
         static_points = np.zeros((4,1,2))
-        
+
         static_points[0][0] = [309, 77] #good  bottom of umpire pole
         static_points[1][0] = [353, 193] # good middle of court
         static_points[2][0] = [39, 142] # good bottom of left pole
@@ -68,13 +68,13 @@ def get_video_initial_points(video_number):
         print static_points
         """
         new_feature_points = np.zeros((2,1,2))
-        
-    elif video_number == 2:    
+
+    elif video_number == 2:
         #2nd video static points
         static_points = np.zeros((4,1,2))
         static_points[0][0] = [535, 142]
         static_points[1][0] = [574, 82]
-        static_points[2][0] = [531, 89] 
+        static_points[2][0] = [531, 89]
         static_points[3][0] = [580, 128]
         static_points = static_points.astype(np.float32)
         """
@@ -88,7 +88,7 @@ def get_video_initial_points(video_number):
         """
         new_feature_points = np.zeros((2,1,2))
 
-    elif video_number == 3:    
+    elif video_number == 3:
         # 3rd video static points
         static_points = np.zeros((4,1,2))
         static_points[0][0] = [170, 141] #nearer pole
@@ -115,7 +115,7 @@ def get_video_initial_points(video_number):
         new_feature_points[5][0] = [396, 276]
     elif video_number == 5:
         # 5th video static points
-        
+
         static_points = np.zeros((5,1,2))
         #static_points[0][0] = p0[-8]  #corner of the podium of the umpire
         #static_points[1][0] = p0[12]  #bottom left coorner of the net
@@ -136,7 +136,7 @@ def get_video_initial_points(video_number):
         player_points = player_points.astype(np.float32)
         """
 
-        
+
         new_feature_points = np.zeros((2,1,2))
         new_feature_points[0][0] = [131, 230]
         new_feature_points[1][0] = [446, 231]
@@ -144,7 +144,7 @@ def get_video_initial_points(video_number):
 
     elif video_number == 6:
         # 6th video static points
-        
+
         static_points = np.zeros((4,1,2))
         static_points[0][0] = [442, 190] #umpire pole
         static_points[1][0] = [562, 284] #top left corner of five sign, but might move down due to ball
@@ -156,7 +156,7 @@ def get_video_initial_points(video_number):
         """
     elif video_number == 7:
         # 7th video static points
-        
+
         static_points = np.zeros((4,1,2))
         static_points[0][0] = [76, 176] # umpire
         static_points[1][0] = [214, 189] # five sign top right corner
@@ -170,17 +170,18 @@ def get_video_initial_points(video_number):
         """
     return static_points, new_feature_points
 
-def read_video_file(frames, video_number, path):
+def read_video_file(file_name, video_number, path):
 
     # this is to keep track of the frames that are copied for our reference whenever a point goes off screen
     print_frame_number = 0
 
-    # cap = cv2.VideoCapture(file_name)
-    # frame_count = int(cap.get(cv.CV_CAP_PROP_FRAME_COUNT))
-    
+    cap = cv2.VideoCapture(file_name)
+    frame_count = int(cap.get(cv.CV_CAP_PROP_FRAME_COUNT))
+
     # read the first frame of video and convert to grayscale
-    # _,old_frame = cap.read()
-    old_frame = frames[0]
+    _,old_frame = cap.read()
+    # print frames.read()
+    # old_frame = frames.read()
 
     gray_old_frame = cv2.cvtColor(old_frame, cv2.COLOR_BGR2GRAY)
     color = np.random.randint(0,255,(100,3))
@@ -191,7 +192,7 @@ def read_video_file(frames, video_number, path):
     feature_params = dict( maxCorners = 200, qualityLevel = 0.3, minDistance = 7, blockSize = 7 )
     new_feature_params = dict(maxCorners = 10, qualityLevel = 0.3, minDistance = 7, blockSize = 7)
     #mask = np.zeros_like(old_frame)
-    
+
     static_points, new_feature_points = get_video_initial_points(video_number)
 
     #number of static points and player points
@@ -204,15 +205,15 @@ def read_video_file(frames, video_number, path):
 
     ret = []
 
-    # for i in range(1,frame_count):
-    for i in range(1, len(frames)):
-    #     _,img = cap.read()
-        img = frames[i]
+    for i in range(1,frame_count):
+    # for i in range(1, len(frames)):
+        _,img = cap.read()
+        # img = frames[i]
 
         gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        
+
         new_static_points, st, err = cv2.calcOpticalFlowPyrLK(gray_old_frame, gray_img, static_points, None, **static_lk_params)
-        
+
         #new_player_points, st_2, err_2 = cv2.calcOpticalFlowPyrLK(gray_old_frame, gray_img, player_points, None, **player_lk_params)
         new_static_points, err, st = check_for_large_movement_of_static_points(new_static_points, err, st)
         # here the st==1 means that the point is found in the next frame
@@ -224,14 +225,14 @@ def read_video_file(frames, video_number, path):
         # here we compare number of found static to the previous number of static
         # points to see if we have lost any points
         number_of_static = len(good_new)
-        
+
         good_new, new_feature_points, print_frame_number = check_static_points(number_of_static, old_number_of_static, good_new, img, print_frame_number, new_feature_points)
 
         # supposed to regain same number of points
         number_of_static = len(good_new)
-        
+
         for j,(new,old) in enumerate(zip(good_new,good_old)):
-            
+
             a,b = new.ravel()
             c,d = old.ravel()
             #print "HERE"
@@ -247,7 +248,7 @@ def read_video_file(frames, video_number, path):
             c,d = old.ravel()
             #cv2.line(mask, (a,b),(c,d), color[i].tolist(), 2)
             cv2.circle(img,(a,b),5,color[i].tolist(),-1)
-        
+
         #image = cv2.add(img,mask)
         """
         gray_old_frame = gray_img.copy()
@@ -277,7 +278,7 @@ def read_video_file(frames, video_number, path):
 def main():
     file_name = "input/beachVolleyball1.mov"
     video_number = int(raw_input('Enter video number: '))
-    read_video_file(file_name, video_number)
+    read_video_file(file_name, video_number, "1_points.txt")
 
 
 if __name__ == "__main__":

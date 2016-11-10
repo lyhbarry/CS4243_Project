@@ -5,6 +5,11 @@
 # Test folders #
 ################
 *_test
+*_working
 
+# File extensions
+*.png
+*.txt
+*.avi
 
 .idea

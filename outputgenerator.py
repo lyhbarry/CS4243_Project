@@ -9,6 +9,7 @@ import numpy as np
 import rw
 from stats_generator import get_distance
 
+
 def output_writer(vid_name):
     """ Generates output an output writer """
     default_vid = cv2.VideoCapture(vid_name)

@@ -95,7 +95,7 @@ def toPlaneCoordinates(pts, H, normalize=True):
         plane_pt = np.dot(H, pt)
         if(normalize):
             plane_pt = normalizeImgVector(plane_pt)
-            
+
         plane_pts.append(plane_pt)
     return plane_pts
 
@@ -107,10 +107,10 @@ def toPlaneCoordinates2D(pts, H, normalize=True):
     plane_pts = []
     for pt in pts:
         vec = np.array([pt[0], pt[1], 1])
-        plane_pt = np.dot(H, vec).transpose()
+        plane_pt = np.dot(H, vec).transpose().transpose().transpose()
         if(normalize):
             plane_pt = normalizeImgVector(plane_pt)
-            
+
         plane_pts.append(plane_pt[:2])
     return plane_pts
 
@@ -133,7 +133,7 @@ def computeRay(pixel, windowSize, camIntrinsic, camExtrinsic):
         camExtrinsic:
         Rotation and tranlation matrix combined
         [R T], where R is the rotation matrix, T is the translation
-    
+
 
     Returns: ray
         A pair of (numpy) 3-tuples:
@@ -172,7 +172,7 @@ def computeIntersect(ray, plane):
         a (numpy) 3-tuple vector.
         (x,y,z) representing the point of intersection
         NOTE: returns None (null) if the ray and plane are parallel
-        
+
     """
 
     rayDir = ray[0]

@@ -4,6 +4,7 @@ import topdownprojector as tdp
 import numpy as np
 import cv2
 
+
 #Wrapper function for the per-frame loop logic
 def frame_loop(vid, writer, vid_frame, prev_vid_frame, static_points, static_corr_points, active_points, mapping, entityPos, entityPos_prev, static_lk_params, player_lk_params):
     #Update feature locations
@@ -97,8 +98,8 @@ for k, v in mapping.items():
     entityPos_prev[k] = top_down_points[v]
     entityPos[k] = top_down_points[v]
 
-#Always init with 0
-entityDist = {'a1':0., 'a2':0., 'b1':0., 'b2':0.}
+entityDist = {'a1' : 0., 'a2' : 0.,\
+              'b1' : 0., 'b2' : 0.}
 
 while ret:
     ret, vid_frame, prev_vid_frame, static_points, static_corr_points, active_points, entityPos, entityPos_prev = frame_loop(vid, writer, vid_frame, prev_vid_frame, static_points, static_corr_points, active_points, mapping, entityPos, entityPos_prev, static_lk_params, player_lk_params)

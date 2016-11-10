@@ -80,55 +80,66 @@ def draw_top_down_alt(frame, feature_pos):
     # Section label
     cv2.putText(frame, 'Top Down View', (5, 15), font, 1, (255,255,255), 1, cv2.CV_AA)
 
-    # Volleyball court
-    cv2.rectangle(frame, (76, 30), (556, 270), court_color, 2)		# Court outline
-    cv2.line(frame, (316, 20), (316, 280), net_color, 2)			# Net
-    cv2.rectangle(frame, (306, 10), (326, 20), net_pole_color, -1)		# Net-pole 1
-    cv2.rectangle(frame, (306, 290), (326, 280), net_pole_color, -1)		# Net-pole 2
+    """ Volleyball court """
+    # Court outline
+    cv2.rectangle(frame, (76, 30), (556, 270), court_color, 2)
+    # Net
+    cv2.line(frame, (316, 20), (316, 280), net_color, 2)
+    # Net-pole 1
+    cv2.rectangle(frame, (306, 10), (326, 20), net_pole_color, -1)
+    # Net-pole 2
+    cv2.rectangle(frame, (306, 290), (326, 280), net_pole_color, -1)
 
     # Based on the definition of the volleyball court above
-    court_width_p = float(556-76)
-    court_height_p = float(270-30)
+    # court_width_p = float(556-76)
+    # court_height_p = float(270-30)
+    court_width_p = 632
+    court_height_p = 300
+
+    w_offset = 108
+    h_offset = 75
 
     # Player A1
     if('a1' in feature_pos.keys()):
         w, h = feature_pos['a1']
-        pos = (int((w*court_width_p)+76), int((h*court_height_p)+30))
+        pos = (int((w*court_width_p)+w_offset+76), int((h*court_height_p)+h_offset+30))
+        print pos
         cv2.circle(frame, pos, 10, a_side_color, -1)
         cv2.putText(frame, 'A1', pos, font, 1.5, (255,255,255), 1, cv2.CV_AA)
 
     # Player A2
     if('a2' in feature_pos.keys()):
         w, h = feature_pos['a2']
-        pos = (int((w*court_width_p)+76), int((h*court_height_p)+30))
+        pos = (int((w*court_width_p)+w_offset+76), int((h*court_height_p)+h_offset+30))
         cv2.circle(frame, pos, 10, a_side_color, -1)
         cv2.putText(frame, 'A2', pos, font, 1.5, (255,255,255), 1, cv2.CV_AA)
 
     # Player B1
     if('b1' in feature_pos.keys()):
         w, h = feature_pos['b1']
-        pos = (int((w*court_width_p)+76), int((h*court_height_p)+30))
+        pos = (int((w*court_width_p)+w_offset+76), int((h*court_height_p)+h_offset+30))
         cv2.circle(frame, pos, 10, b_side_color, -1)
         cv2.putText(frame, 'B1', pos, font, 1.5, (255,255,255), 1, cv2.CV_AA)
 
     # Player B2
     if('b2' in feature_pos.keys()):
         w, h = feature_pos['b2']
-        pos = (int((w*court_width_p)+76), int((h*court_height_p)+30))
+        pos = (int((w*court_width_p)+w_offset+76), int((h*court_height_p)+h_offset+30))
         cv2.circle(frame, pos, 10, b_side_color, -1)
         cv2.putText(frame, 'B2', pos, font, 1.5, (255,255,255), 1, cv2.CV_AA)
 
     # Volleyball
     if('ball' in feature_pos.keys()):
         w, h = feature_pos['ball']
-        pos = (int((w*court_width_p)+76), int((h*court_height_p)+30))
+        pos = (int((w*court_width_p)+w_offset+76), int((h*court_height_p)+h_offset+30))
         cv2.circle(frame, pos, 5, ball_color, -1)
         cv2.putText(frame, 'Ball', pos, font, 1.5, (255,255,255), 1, cv2.CV_AA)
 
 
 
 def generate_frame(orig_frame, full_court_frame, outputDim, feature_pos, feature_pos_prev, feature_dist):
-    """ Generates an output frame based on input frame and existing information """
+    """ Generates an output frame based on input frame
+        and existing information """
     """
     feature_pos is a dictionary where K: name of feature, V: coord position
     feature_pos_prev is a dictionary where K: name of feature, V: previous coord position
@@ -144,7 +155,11 @@ def generate_frame(orig_frame, full_court_frame, outputDim, feature_pos, feature
 
     # Compute statistics
     for k, v in feature_dist.items():
-        feature_dist[k] += get_distance(np.asarray(feature_pos[k]), np.asarray(feature_pos_prev[k]))
+        w1, h1 = feature_pos[k]
+        w2, h2 = feature_pos_prev[k]
+        curr_pos = (int(abs(w1*632)), int(abs(h1*300)))
+        prev_pos = (int(abs(w2*632)), int(abs(h2*300)))
+        feature_dist[k] += get_distance(np.asarray(curr_pos), np.asarray(prev_pos))
 
     # Text labels for each frame
     rw.draw_original_vid(vid_frame)

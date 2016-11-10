@@ -47,7 +47,8 @@ def read(vid_name):
 def write(filename, frames, fps):
 	# type: (string, ndarray, int) -> void
 	(h, w) = frames[0].shape[:2]
-	vid = cv2.VideoWriter(filename + ".avi", cv2.cv.CV_FOURCC('D', 'I', 'V', 'X'),  fps, (w, h))
+	cv2.VideoWriter(filename + ".avi", cv2.cv.CV_FOURCC('D', 'I', 'V', 'X'),\
+				    fps, (w, h))
 
 
 def draw_original_vid(frame):
@@ -175,9 +176,9 @@ def output_generator(vid_name):
 					  }
 
 		# Initialise output frames
-		# full_court_frame = np.zeros(vid_frame.shape, np.uint8)
-		full_court_frame = cv2.resize(cv2.imread('6_test/warped_' + '{:04}'.format(i) + '.jpg'),\
-									 (np.shape(vid_frame)[1], np.shape(vid_frame)[0]))
+		full_court_frame = cv2.imread('6_test/warped_' + '{:04}'.format(i) + \
+									  '.jpg')
+		full_court_frame = cv2.resize(full_court_frame, (w, h))
 		top_down_frame = np.zeros(vid_frame.shape, np.uint8)
 		stats_frame = np.zeros(vid_frame.shape, np.uint8)
 
@@ -198,18 +199,26 @@ def output_generator(vid_name):
 			b2_prev_pos = b2_start_pos
 		# Updates distance every 10 frames
 		if i!= 0 and i % 10 == 0:
-			a1_end_pos = np.asarray([feature_pos['a1_u'], feature_pos['a1_v']])
-			a2_end_pos = np.asarray([feature_pos['a2_u'], feature_pos['a2_v']])
-			b1_end_pos = np.asarray([feature_pos['b1_u'], feature_pos['b1_v']])
-			b2_end_pos = np.asarray([feature_pos['b2_u'], feature_pos['b2_v']])
+			a1_end_pos = np.asarray([feature_pos['a1_u'],\
+									 feature_pos['a1_v']])
+			a2_end_pos = np.asarray([feature_pos['a2_u'],\
+									 feature_pos['a2_v']])
+			b1_end_pos = np.asarray([feature_pos['b1_u'],\
+									 feature_pos['b1_v']])
+			b2_end_pos = np.asarray([feature_pos['b2_u'],\
+									 feature_pos['b2_v']])
 			dist['a1'] += get_distance(a1_prev_pos, a1_end_pos)
 			dist['a2'] += get_distance(a2_prev_pos, a2_end_pos)
 			dist['b1'] += get_distance(b1_prev_pos, b1_end_pos)
 			dist['b2'] += get_distance(b2_prev_pos, b2_end_pos)
-			a1_prev_pos = np.asarray([feature_pos['a1_u'], feature_pos['a1_v']])
-			a2_prev_pos = np.asarray([feature_pos['a2_u'], feature_pos['a2_v']])
-			b1_prev_pos = np.asarray([feature_pos['b1_u'], feature_pos['b1_v']])
-			b2_prev_pos = np.asarray([feature_pos['b2_u'], feature_pos['b2_v']])
+			a1_prev_pos = np.asarray([feature_pos['a1_u'],\
+									  feature_pos['a1_v']])
+			a2_prev_pos = np.asarray([feature_pos['a2_u'],\
+									  feature_pos['a2_v']])
+			b1_prev_pos = np.asarray([feature_pos['b1_u'],\
+									  feature_pos['b1_v']])
+			b2_prev_pos = np.asarray([feature_pos['b2_u'],\
+									  feature_pos['b2_v']])
 		draw_stats(stats_frame, dist)
 
 		# Concatenate output videos

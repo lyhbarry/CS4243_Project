@@ -106,9 +106,10 @@ def generate_homography_matrix_list(points):
         pts_curr = points[i]
 
         acc = 0
-        if len(pts_prev) is len(pts_curr):
-            for x in range(len(pts_prev)):
-                acc += eucl_dist(pts_prev[x], pts_curr[x])
+        if len(pts_prev) >= 4 and len(pts_curr) >= 4:
+            if len(pts_prev) is len(pts_curr):
+                for x in range(len(pts_prev)):
+                    acc += eucl_dist(pts_prev[x], pts_curr[x])
         if acc < len(pts_prev):
             homo_mat = np.eye(3)
         else:

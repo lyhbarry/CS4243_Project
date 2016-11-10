@@ -13,15 +13,15 @@ def frame_loop(vid, writer, vid_frame, prev_vid_frame, static_points, static_cor
     static_points = static_points.tolist()
     active_points, st, err = cv2.calcOpticalFlowPyrLK(gray_old_frame, gray_img, np.array(active_points, dtype=np.float32), None, **player_lk_params)
     active_points = active_points.tolist()
-    
+
     #Map to top-down
     H = hg.find_homography(static_points, static_corr_points)
-    top_down_points = tdp.toPlaneCoordinates2D(active_points, H, normalize=True)
+    top_down_points = tdp.toPlaneCoordinates2D(active_points, H, normalize=False)
 
     for k, v in mapping.items():
         entityPos_prev[k] = entityPos[k]
         entityPos[k] = top_down_points[v]
-        
+
     # Without any player position info, Using original frame as full court frame
     # This part should be changed to update
     output_frame = og.generate_frame(vid_frame, vid_frame, outputDim, entityPos, entityPos_prev, entityDist)
@@ -40,11 +40,11 @@ def frame_loop(vid, writer, vid_frame, prev_vid_frame, static_points, static_cor
         cv2.putText(output_frame, '+'+str(counter), pos, font, 1.5, (255,255,255), 1, cv2.CV_AA)
         counter+=1
 
-    
+
     writer.write(output_frame)
     cv2.imshow("sample", output_frame)
     cv2.waitKey(10)
-    
+
     #Update step
     prev_vid_frame = vid_frame[:]
     ret, vid_frame = vid.read()
@@ -89,14 +89,14 @@ active_points = [
 H = hg.find_homography(static_points, static_corr_points)
 top_down_points = tdp.toPlaneCoordinates2D(active_points, H, normalize=True)
 
-mapping = {'a1':0, 'a2':1, 'b1':2, 'b2':3, 'ball':4}
+mapping = {'b1':0, 'b2':1, 'a1':2, 'a2':3, 'ball':4}
 entityPos = {}
 entityPos_prev = {}
 
 for k, v in mapping.items():
     entityPos_prev[k] = top_down_points[v]
     entityPos[k] = top_down_points[v]
-    
+
 #Always init with 0
 entityDist = {'a1':0., 'a2':0., 'b1':0., 'b2':0.}
 

@@ -22,7 +22,7 @@ def output_writer(vid_name):
 
     # Define the codec and create VideoWriter object
     fourcc = cv2.cv.CV_FOURCC('m', 'p', '4', 'v')
-	
+
     out = cv2.VideoWriter('output.avi', fourcc, fps, (w * 2, h * 2))
     return out
 
@@ -41,29 +41,29 @@ def draw_stats_alt(frame, dist):
 
 	# Team A statistics
 	cv2.putText(frame, 'Team A', (25, 65), font, 1.5, (229,85,59), 2, cv2.CV_AA)
-	
+
 	# Player A1
 	cv2.putText(frame, 'Player A1', (25, 105), font, 1.25, (255,255,255), 1, cv2.CV_AA)
-	cv2.putText(frame, 'Distance run: ' + str("{0:.2f}".format(dist['a1'])) + 'm', (25, 125), font, 1, (255,255,255), 1, cv2.CV_AA)    
-	cv2.putText(frame, 'Jump count: ' + '0', (25, 145), font, 1, (255,255,255), 1, cv2.CV_AA) 
-	
-	# Player A2   
-	cv2.putText(frame, 'Player A2', (25, 195), font, 1.25, (255,255,255), 1, cv2.CV_AA)    
-	cv2.putText(frame, 'Distance run: ' + str("{0:.2f}".format(dist['a2'])) + 'm', (25, 215), font, 1, (255,255,255), 1, cv2.CV_AA)    
+	cv2.putText(frame, 'Distance run: ' + str("{0:.2f}".format(dist['a1'])) + 'm', (25, 125), font, 1, (255,255,255), 1, cv2.CV_AA)
+	cv2.putText(frame, 'Jump count: ' + '0', (25, 145), font, 1, (255,255,255), 1, cv2.CV_AA)
+
+	# Player A2
+	cv2.putText(frame, 'Player A2', (25, 195), font, 1.25, (255,255,255), 1, cv2.CV_AA)
+	cv2.putText(frame, 'Distance run: ' + str("{0:.2f}".format(dist['a2'])) + 'm', (25, 215), font, 1, (255,255,255), 1, cv2.CV_AA)
 	cv2.putText(frame, 'Jump count: ' + '0', (25, 235), font, 1, (255,255,255), 1, cv2.CV_AA)
 
 	# Team B statistics
 	cv2.putText(frame, 'Team B', (341, 65), font, 1.5, (120,229,110), 2, cv2.CV_AA)
-	
+
 	# Player B1
 	cv2.putText(frame, 'Player B1', (341, 105), font, 1.25, (255,255,255), 1, cv2.CV_AA)
-	cv2.putText(frame, 'Distance run: ' + str("{0:.2f}".format(dist['b1'])) + 'm', (341, 125), font, 1, (255,255,255), 1, cv2.CV_AA)    
-	cv2.putText(frame, 'Jump count: ' + '0', (341, 145), font, 1, (255,255,255), 1, cv2.CV_AA)    
-	
+	cv2.putText(frame, 'Distance run: ' + str("{0:.2f}".format(dist['b1'])) + 'm', (341, 125), font, 1, (255,255,255), 1, cv2.CV_AA)
+	cv2.putText(frame, 'Jump count: ' + '0', (341, 145), font, 1, (255,255,255), 1, cv2.CV_AA)
+
 	# Player B2
-	cv2.putText(frame, 'Player B2', (341, 195), font, 1.25, (255,255,255), 1, cv2.CV_AA)    
-	cv2.putText(frame, 'Distance run: ' + str("{0:.2f}".format(dist['b2'])) + 'm', (341, 215), font, 1, (255,255,255), 1, cv2.CV_AA)    
-	cv2.putText(frame, 'Jump count: ' + '0', (341, 235), font, 1, (255,255,255), 1, cv2.CV_AA)  
+	cv2.putText(frame, 'Player B2', (341, 195), font, 1.25, (255,255,255), 1, cv2.CV_AA)
+	cv2.putText(frame, 'Distance run: ' + str("{0:.2f}".format(dist['b2'])) + 'm', (341, 215), font, 1, (255,255,255), 1, cv2.CV_AA)
+	cv2.putText(frame, 'Jump count: ' + '0', (341, 235), font, 1, (255,255,255), 1, cv2.CV_AA)
 
 def draw_top_down_alt(frame, feature_pos):
     """ Draw top-down view frames """
@@ -76,8 +76,8 @@ def draw_top_down_alt(frame, feature_pos):
     ball_color = (73,156,244)
     dim_w, dim_h, _ = frame.shape
 
-    # Section label			
-    cv2.putText(frame, 'Top Down View', (5, 15), font, 1, (255,255,255), 1, cv2.CV_AA)    
+    # Section label
+    cv2.putText(frame, 'Top Down View', (5, 15), font, 1, (255,255,255), 1, cv2.CV_AA)
 
     # Volleyball court
     cv2.rectangle(frame, (76, 30), (556, 270), court_color, 2)		# Court outline
@@ -88,27 +88,27 @@ def draw_top_down_alt(frame, feature_pos):
     # Based on the definition of the volleyball court above
     court_width_p = float(556-76)
     court_height_p = float(270-30)
-    
+
     # Player A1
     if('a1' in feature_pos.keys()):
         w, h = feature_pos['a1']
         pos = (int((w*court_width_p)+76), int((h*court_height_p)+30))
         cv2.circle(frame, pos, 10, a_side_color, -1)
-        cv2.putText(frame, 'A1', pos, font, 1.5, (255,255,255), 1, cv2.CV_AA)  
+        cv2.putText(frame, 'A1', pos, font, 1.5, (255,255,255), 1, cv2.CV_AA)
 
     # Player A2
     if('a2' in feature_pos.keys()):
         w, h = feature_pos['a2']
         pos = (int((w*court_width_p)+76), int((h*court_height_p)+30))
         cv2.circle(frame, pos, 10, a_side_color, -1)
-        cv2.putText(frame, 'A2', pos, font, 1.5, (255,255,255), 1, cv2.CV_AA) 
+        cv2.putText(frame, 'A2', pos, font, 1.5, (255,255,255), 1, cv2.CV_AA)
 
     # Player B1
     if('b1' in feature_pos.keys()):
         w, h = feature_pos['b1']
         pos = (int((w*court_width_p)+76), int((h*court_height_p)+30))
         cv2.circle(frame, pos, 10, b_side_color, -1)
-        cv2.putText(frame, 'B1', pos, font, 1.5, (255,255,255), 1, cv2.CV_AA) 
+        cv2.putText(frame, 'B1', pos, font, 1.5, (255,255,255), 1, cv2.CV_AA)
 
     # Player B2
     if('b2' in feature_pos.keys()):
@@ -122,7 +122,7 @@ def draw_top_down_alt(frame, feature_pos):
         w, h = feature_pos['ball']
         pos = (int((w*court_width_p)+76), int((h*court_height_p)+30))
         cv2.circle(frame, pos, 5, ball_color, -1)
-        cv2.putText(frame, 'Ball', pos, font, 1.5, (255,255,255), 1, cv2.CV_AA)	
+        cv2.putText(frame, 'Ball', pos, font, 1.5, (255,255,255), 1, cv2.CV_AA)
 
 
 
@@ -150,7 +150,7 @@ def generate_frame(orig_frame, full_court_frame, outputDim, feature_pos, feature
     rw.draw_full_court(full_court_frame)
     draw_top_down_alt(top_down_frame, feature_pos)
     rw.draw_stats(stats_frame, feature_dist)
-    
+
 
     # Concatenate output videos
     top_half = np.hstack((vid_frame, full_court_frame))

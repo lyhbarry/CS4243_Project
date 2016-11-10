@@ -1,4 +1,4 @@
-""" 
+"""
 <Read/write module>
 
 Executes all reading and writing of videos.
@@ -52,9 +52,9 @@ def write(filename, frames, fps):
 
 def draw_original_vid(frame):
 	""" Draw original video frames """
-	
+
 	# Section label
-	cv2.putText(frame, 'Original Video', (5, 15), font, 1, (255,255,255), 1, cv2.CV_AA)  
+	cv2.putText(frame, 'Original Video', (5, 15), font, 1, (255,255,255), 1, cv2.CV_AA)
 
 
 def draw_full_court(frame):
@@ -67,8 +67,8 @@ def draw_full_court(frame):
 def draw_top_down(frame, feature_pos):
 	""" Draw top-down view frames """
 
-	# Section label			
-	cv2.putText(frame, 'Top Down View', (5, 15), font, 1, (255,255,255), 1, cv2.CV_AA)    
+	# Section label
+	cv2.putText(frame, 'Top Down View', (5, 15), font, 1, (255,255,255), 1, cv2.CV_AA)
 
 	# Volleyball court
 	cv2.rectangle(frame, (76, 30), (556, 270), (133, 35, 160), 2)		# Court outline
@@ -78,15 +78,15 @@ def draw_top_down(frame, feature_pos):
 
 	# Player A1
 	cv2.circle(frame, (feature_pos['a1_u'], feature_pos['a1_v']), 10, (229,85,59), -1)
-	cv2.putText(frame, 'A1', (feature_pos['a1_u'], feature_pos['a1_v']), font, 1.5, (255,255,255), 1, cv2.CV_AA)  
+	cv2.putText(frame, 'A1', (feature_pos['a1_u'], feature_pos['a1_v']), font, 1.5, (255,255,255), 1, cv2.CV_AA)
 
 	# Player A2
 	cv2.circle(frame, (feature_pos['a2_u'], feature_pos['a2_v']), 10, (229,85,59), -1)
-	cv2.putText(frame, 'A2', (feature_pos['a2_u'], feature_pos['a2_v']), font, 1.5, (255,255,255), 1, cv2.CV_AA) 
+	cv2.putText(frame, 'A2', (feature_pos['a2_u'], feature_pos['a2_v']), font, 1.5, (255,255,255), 1, cv2.CV_AA)
 
 	# Player B1
 	cv2.circle(frame, (feature_pos['b1_u'], feature_pos['b1_v']), 10, (120,229,110), -1)
-	cv2.putText(frame, 'B1', (feature_pos['b1_u'], feature_pos['b1_v']), font, 1.5, (255,255,255), 1, cv2.CV_AA) 
+	cv2.putText(frame, 'B1', (feature_pos['b1_u'], feature_pos['b1_v']), font, 1.5, (255,255,255), 1, cv2.CV_AA)
 
 	# Player B2
 	cv2.circle(frame, (feature_pos['b2_u'], feature_pos['b2_v']), 10, (120,229,110), -1)
@@ -94,7 +94,7 @@ def draw_top_down(frame, feature_pos):
 
 	# Volleyball
 	cv2.circle(frame, (feature_pos['ball_u'], feature_pos['ball_v']), 5, (73,156,244), -1)
-	cv2.putText(frame, 'Ball', (feature_pos['ball_u'], feature_pos['ball_v']), font, 1.5, (255,255,255), 1, cv2.CV_AA)	
+	cv2.putText(frame, 'Ball', (feature_pos['ball_u'], feature_pos['ball_v']), font, 1.5, (255,255,255), 1, cv2.CV_AA)
 
 
 def draw_stats(frame, dist):
@@ -111,29 +111,29 @@ def draw_stats(frame, dist):
 
 	# Team A statistics
 	cv2.putText(frame, 'Team A', (25, 65), font, 1.5, (229,85,59), 2, cv2.CV_AA)
-	
+
 	# Player A1
 	cv2.putText(frame, 'Player A1', (25, 105), font, 1.25, (255,255,255), 1, cv2.CV_AA)
-	cv2.putText(frame, 'Distance run: ' + str("{0:.2f}".format(dist['a1'])) + 'm', (25, 125), font, 1, (255,255,255), 1, cv2.CV_AA)    
-	cv2.putText(frame, 'Jump count: ' + '0', (25, 145), font, 1, (255,255,255), 1, cv2.CV_AA) 
-	
-	# Player A2   
-	cv2.putText(frame, 'Player A2', (25, 195), font, 1.25, (255,255,255), 1, cv2.CV_AA)    
-	cv2.putText(frame, 'Distance run: ' + str("{0:.2f}".format(dist['a2'])) + 'm', (25, 215), font, 1, (255,255,255), 1, cv2.CV_AA)    
+	cv2.putText(frame, 'Distance run: ' + str("{0:.2f}".format(dist['a1'])) + 'm', (25, 125), font, 1, (255,255,255), 1, cv2.CV_AA)
+	cv2.putText(frame, 'Jump count: ' + '0', (25, 145), font, 1, (255,255,255), 1, cv2.CV_AA)
+
+	# Player A2
+	cv2.putText(frame, 'Player A2', (25, 195), font, 1.25, (255,255,255), 1, cv2.CV_AA)
+	cv2.putText(frame, 'Distance run: ' + str("{0:.2f}".format(dist['a2'])) + 'm', (25, 215), font, 1, (255,255,255), 1, cv2.CV_AA)
 	cv2.putText(frame, 'Jump count: ' + '0', (25, 235), font, 1, (255,255,255), 1, cv2.CV_AA)
 
 	# Team B statistics
 	cv2.putText(frame, 'Team B', (341, 65), font, 1.5, (120,229,110), 2, cv2.CV_AA)
-	
+
 	# Player B1
 	cv2.putText(frame, 'Player B1', (341, 105), font, 1.25, (255,255,255), 1, cv2.CV_AA)
-	cv2.putText(frame, 'Distance run: ' + str("{0:.2f}".format(dist['b1'])) + 'm', (341, 125), font, 1, (255,255,255), 1, cv2.CV_AA)    
-	cv2.putText(frame, 'Jump count: ' + '0', (341, 145), font, 1, (255,255,255), 1, cv2.CV_AA)    
-	
+	cv2.putText(frame, 'Distance run: ' + str("{0:.2f}".format(dist['b1'])) + 'm', (341, 125), font, 1, (255,255,255), 1, cv2.CV_AA)
+	cv2.putText(frame, 'Jump count: ' + '0', (341, 145), font, 1, (255,255,255), 1, cv2.CV_AA)
+
 	# Player B2
-	cv2.putText(frame, 'Player B2', (341, 195), font, 1.25, (255,255,255), 1, cv2.CV_AA)    
-	cv2.putText(frame, 'Distance run: ' + str("{0:.2f}".format(dist['b2'])) + 'm', (341, 215), font, 1, (255,255,255), 1, cv2.CV_AA)    
-	cv2.putText(frame, 'Jump count: ' + '0', (341, 235), font, 1, (255,255,255), 1, cv2.CV_AA)  
+	cv2.putText(frame, 'Player B2', (341, 195), font, 1.25, (255,255,255), 1, cv2.CV_AA)
+	cv2.putText(frame, 'Distance run: ' + str("{0:.2f}".format(dist['b2'])) + 'm', (341, 215), font, 1, (255,255,255), 1, cv2.CV_AA)
+	cv2.putText(frame, 'Jump count: ' + '0', (341, 235), font, 1, (255,255,255), 1, cv2.CV_AA)
 
 
 def output_generator(vid_name):
@@ -155,16 +155,16 @@ def output_generator(vid_name):
 	dist['a1'] = 0
 	dist['a2'] = 0
 	dist['b1'] = 0
-	dist['b2'] = 0	
+	dist['b2'] = 0
 
 	print '\n[BEGIN] - Generating Output'
 	for i in range(frame_count):
 		ret, vid_frame = vid.read()
 
 		if (i + 1) % 50 == 0:
-			print 'Processing ', i + 1, '/', frame_count, ' frames...'   
-		
-		vid_frame = cv2.resize(vid_frame, (w, h))			
+			print 'Processing ', i + 1, '/', frame_count, ' frames...'
+
+		vid_frame = cv2.resize(vid_frame, (w, h))
 
 		# Test top-down output
 		feature_pos = {'a1_u': randint(0, 316), 'a1_v': randint(0, 300),
@@ -174,13 +174,13 @@ def output_generator(vid_name):
 					   'ball_u': randint(0, 632), 'ball_v': randint(0, 300)
 					  }
 
-		# Initialise output frames		
+		# Initialise output frames
 		# full_court_frame = np.zeros(vid_frame.shape, np.uint8)
 		full_court_frame = cv2.resize(cv2.imread('6_test/warped_' + '{:04}'.format(i) + '.jpg'),\
 									 (np.shape(vid_frame)[1], np.shape(vid_frame)[0]))
 		top_down_frame = np.zeros(vid_frame.shape, np.uint8)
 		stats_frame = np.zeros(vid_frame.shape, np.uint8)
-		
+
 		# Draw output section (original, fullcourt, topdown, statistics)
 		draw_original_vid(vid_frame)
 		draw_full_court(full_court_frame)
@@ -209,8 +209,8 @@ def output_generator(vid_name):
 			a1_prev_pos = np.asarray([feature_pos['a1_u'], feature_pos['a1_v']])
 			a2_prev_pos = np.asarray([feature_pos['a2_u'], feature_pos['a2_v']])
 			b1_prev_pos = np.asarray([feature_pos['b1_u'], feature_pos['b1_v']])
-			b2_prev_pos = np.asarray([feature_pos['b2_u'], feature_pos['b2_v']])				
-		draw_stats(stats_frame, dist) 
+			b2_prev_pos = np.asarray([feature_pos['b2_u'], feature_pos['b2_v']])
+		draw_stats(stats_frame, dist)
 
 		# Concatenate output videos
 		top_half = np.hstack((vid_frame, full_court_frame))
@@ -219,15 +219,15 @@ def output_generator(vid_name):
 
 		# Write frame to video
 		out.write(full_vid)
-			
+
 		cv2.imshow('Output Video', full_vid)
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
 
-	print 'Processing ', frame_count, '/', frame_count, ' frames...'		
+	print 'Processing ', frame_count, '/', frame_count, ' frames...'
 	print '[COMPLETED] - Generating Output'
 
 	# Release capture once all frames are read and appended
 	vid.release()
 	out.release()
-	cv2.destroyAllWindows()	
+	cv2.destroyAllWindows()

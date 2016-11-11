@@ -99,7 +99,7 @@ def toPlaneCoordinates(pts, H, normalize=True):
         plane_pts.append(plane_pt)
     return plane_pts
 
-def toPlaneCoordinates2D(pts, H, normalize=True):
+def toPlaneCoordinates2D(pts, H, normalize=True, alpha=1.):
     """
     Given a homography H, maps a list of points pts
     into their corresponding points based on H.
@@ -109,10 +109,24 @@ def toPlaneCoordinates2D(pts, H, normalize=True):
         vec = np.asarray([pt[0], pt[1], 1])
         plane_pt = np.dot(H, vec).transpose()
         if(normalize):
-            plane_pt = normalizeImgVector(plane_pt)
+            plane_pt[:] = plane_pt[:]/alpha
 
         plane_pts.append(plane_pt[:2])
     return plane_pts
+
+def computeScalar(pts_src, pts_dst, H):
+    lhs = []
+    rhs = []
+    for pt, dst_pt_model in zip(pts_src, pts_dst):
+        vec = np.asarray([pt[0], pt[1], 1])
+        dst_pt = np.array(np.dot(H, vec).transpose())
+        lhs.append([dst_pt[0][0]])
+        rhs.append([dst_pt_model[0]])
+        lhs.append([dst_pt[1][0]])
+        rhs.append([dst_pt_model[1]])
+        
+    alpha, c, r, s = np.linalg.lstsq(lhs, rhs)
+    return alpha
 
 ############# Any code after this point can be considered obsolete #################
 def computeRay(pixel, windowSize, camIntrinsic, camExtrinsic):

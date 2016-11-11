@@ -3,12 +3,13 @@ import homography as hg
 import topdownprojector as tdp
 import numpy as np
 import cv2
+import re
 import feature_tracker_2 as ft2
+import rw
 
+from archival_stitcher import Stitcher
 
 font = cv2.FONT_HERSHEY_PLAIN   # Font-type
-
-#def compute_alpha(H, static_corr_points):
 
 
 #Wrapper function for the per-frame loop logic
@@ -23,6 +24,10 @@ def frame_loop(vid, writer, vid_frame, static_points, static_corr_points, next_s
         ret, vid_frame = vid.read()
         outputDim = vid_frame.shape
         gray_frame = cv2.cvtColor(vid_frame, cv2.COLOR_BGR2GRAY)
+
+        full_court_frame = cv2.imread(str(video_number) + '_test/warped_' + '{:04}'.format(i) + '.jpg')
+        full_court_frame = cv2.resize(full_court_frame, (outputDim[0], outputDim[1]))
+
         """
         gray_img = cv2.cvtColor(vid_frame, cv2.COLOR_BGR2GRAY)
         gray_old_frame = cv2.cvtColor(prev_vid_frame, cv2.COLOR_BGR2GRAY)
@@ -47,7 +52,7 @@ def frame_loop(vid, writer, vid_frame, static_points, static_corr_points, next_s
 
         # Without any player position info, Using original frame as full court frame
         # This part should be changed to update
-        output_frame = og.generate_frame(video_number, vid_frame, vid_frame, outputDim, entityPos, entityPos_prev, entityDist)
+        output_frame = og.generate_frame(video_number, vid_frame, full_court_frame, outputDim, entityPos, entityPos_prev, entityDist)
 
         #Additional step, mark all the points
         counter = 0
@@ -86,7 +91,13 @@ src = 'input/beachVolleyball1.mov'
 writer = og.output_writer(src)
 
 vid = cv2.VideoCapture(src)
-video_number = 1
+video_number = int(re.search(r'\d+', src).group())
+
+# Comment out this section to not run the stitching
+frames, fps = rw.read(src)
+stitcher = Stitcher()
+stitcher.do_main(frames, fps, [None, None, None, frames[0].shape[0] / 2], None, video_number)
+
 ret, vid_frame = vid.read()
 #prev_vid_frame = vid_frame[:]
 outputDim = vid_frame.shape
@@ -101,7 +112,7 @@ static_points = [
     [39, 142],
     [478, 116],
     [349, 69]]
-"""    
+"""
 first_frame_static = ft2.restructure_array(static_points)
 """
 static_corr_points = [
@@ -116,9 +127,9 @@ static_corr_points = [
     [0.5, -0.1],
     [1.0, 0.5],
     [0.5, 1.1],
-    [0.5, 1.0]]    
-"""    
-"""    
+    [0.5, 1.0]]
+"""
+"""
 active_points = [
     [492, 236], #'a1', player serving
     [207, 114], #'a2', player near net

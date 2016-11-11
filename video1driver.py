@@ -82,11 +82,11 @@ static_lk_params = dict(winSize  = (10,10),maxLevel = 2,criteria = (cv2.TERM_CRI
 player_lk_params = dict(winSize  = (5,5),maxLevel = 2,criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
 
 # Here is a sample run of how it works
-src = 'input/beachVolleyball1.mov'
+src = 'input/beachVolleyball3.mov'
 writer = og.output_writer(src)
 
 vid = cv2.VideoCapture(src)
-video_number = 1
+video_number = 3
 ret, vid_frame = vid.read()
 #prev_vid_frame = vid_frame[:]
 outputDim = vid_frame.shape

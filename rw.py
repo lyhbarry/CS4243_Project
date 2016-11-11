@@ -51,6 +51,62 @@ def write(filename, frames, fps):
 				    fps, (w, h))
 
 
+def concatenate_output():
+	vid = cv2.VideoCapture("output_1.avi")
+
+	# Get properties of video
+	w = int(vid.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
+	h = int(vid.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
+	fps = int(vid.get(cv2.cv.CV_CAP_PROP_FPS))
+	frame_count = int(vid.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT))
+
+	fourcc = cv2.cv.CV_FOURCC('m', 'p', '4', 'v')
+	out = cv2.VideoWriter("final_output.avi", fourcc, fps, (w, h))
+
+	for i in range(frame_count):
+		ret, frame = vid.read()
+		out.write(frame)
+
+	vid = cv2.VideoCapture("output_2.avi")
+	frame_count = int(vid.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT))
+	for i in range(frame_count):
+		ret, frame = vid.read()
+		out.write(frame)
+
+	vid = cv2.VideoCapture("output_3.avi")
+	frame_count = int(vid.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT))
+	for i in range(frame_count):
+		ret, frame = vid.read()
+		out.write(frame)
+
+	vid = cv2.VideoCapture("output_4.avi")
+	frame_count = int(vid.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT))
+	for i in range(frame_count):
+		ret, frame = vid.read()
+		out.write(frame)
+
+	vid = cv2.VideoCapture("output_5.avi")
+	frame_count = int(vid.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT))
+	for i in range(frame_count):
+		ret, frame = vid.read()
+		out.write(frame)
+
+	vid = cv2.VideoCapture("output_6.avi")
+	frame_count = int(vid.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT))
+	for i in range(frame_count):
+		ret, frame = vid.read()
+		out.write(frame)
+
+	vid = cv2.VideoCapture("output_7.avi")
+	frame_count = int(vid.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT))
+	for i in range(frame_count):
+		ret, frame = vid.read()
+		out.write(frame)
+
+	out.release()
+
+
+
 def draw_original_vid(frame):
 	""" Draw original video frames """
 

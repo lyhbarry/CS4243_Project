@@ -96,41 +96,44 @@ def draw_top_down_alt(frame, feature_pos):
     court_width_p = 632
     court_height_p = 300
 
-    w_offset = 108
-    h_offset = 75
+    #w_offset = -108
+    #h_offset = -75
+    w_offset = 0
+    h_offset = 0
 
     # Player A1
     if('a1' in feature_pos.keys()):
         w, h = feature_pos['a1']
-        pos = (int((w*court_width_p)+w_offset+76), int((h*court_height_p)+h_offset+30))
+        pos = (int((w*court_width_p)+w_offset), int((h*court_height_p)+h_offset))
+        print pos
         cv2.circle(frame, pos, 10, a_side_color, -1)
         cv2.putText(frame, 'A1', pos, font, 1.5, (255,255,255), 1, cv2.CV_AA)
 
     # Player A2
     if('a2' in feature_pos.keys()):
         w, h = feature_pos['a2']
-        pos = (int((w*court_width_p)+w_offset+76), int((h*court_height_p)+h_offset+30))
+        pos = (int((w*court_width_p)+w_offset), int((h*court_height_p)+h_offset))
         cv2.circle(frame, pos, 10, a_side_color, -1)
         cv2.putText(frame, 'A2', pos, font, 1.5, (255,255,255), 1, cv2.CV_AA)
 
     # Player B1
     if('b1' in feature_pos.keys()):
         w, h = feature_pos['b1']
-        pos = (int((w*court_width_p)+w_offset+76), int((h*court_height_p)+h_offset+30))
+        pos = (int((w*court_width_p)+w_offset), int((h*court_height_p)+h_offset))
         cv2.circle(frame, pos, 10, b_side_color, -1)
         cv2.putText(frame, 'B1', pos, font, 1.5, (255,255,255), 1, cv2.CV_AA)
 
     # Player B2
     if('b2' in feature_pos.keys()):
         w, h = feature_pos['b2']
-        pos = (int((w*court_width_p)+w_offset+76), int((h*court_height_p)+h_offset+30))
+        pos = (int((w*court_width_p)+w_offset), int((h*court_height_p)+h_offset))
         cv2.circle(frame, pos, 10, b_side_color, -1)
         cv2.putText(frame, 'B2', pos, font, 1.5, (255,255,255), 1, cv2.CV_AA)
 
     # Volleyball
     if('ball' in feature_pos.keys()):
         w, h = feature_pos['ball']
-        pos = (int((w*court_width_p)+w_offset+76), int((h*court_height_p)+h_offset+30))
+        pos = (int((w*court_width_p)+w_offset), int((h*court_height_p)+h_offset))
         cv2.circle(frame, pos, 5, ball_color, -1)
         cv2.putText(frame, 'Ball', pos, font, 1.5, (255,255,255), 1, cv2.CV_AA)
 

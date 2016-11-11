@@ -4,19 +4,119 @@ import numpy as np
 import numpy.linalg as la
 import matplotlib.pyplot as plt
 
+def track_players(gray_old_frame, gray_img, player_points, player_lk_params, new_retrack_player_points, player_retrack_frame, player_retrack_frames, players_to_retrack, frame_number, video_number):
+    #print frame_number
+    new_player_points, st_2, err_2 = cv2.calcOpticalFlowPyrLK(gray_old_frame, gray_img, player_points, None, **player_lk_params)
+    #print new_player_points
+    if (frame_number == player_retrack_frame):
+        player_to_retrack = players_to_retrack.pop(0)
+        print player_retrack_frames
+        if ((video_number == 3) and (i == 33)):
+            new_player_points = np.append(new_player_points, [[[0,0]]], axis=0)
+            st_2 = np.append(st_2, [[1]], axis=0)
+        if ((video_number == 3) and (i == 69)):
+            new_player_points = np.append(new_player_points, [[[0,0]]], axis=0)
+            st_2 = np.append(st_2, [[1]], axis=0)    
+        new_player_points, new_retrack_player_points = retrack_players(new_player_points, player_to_retrack, new_retrack_player_points)
+        
+        if ((len(players_to_retrack) > 0) and (len(player_retrack_frames) > 0)):
+            player_retrack_frame = player_retrack_frames.pop(0)
 
-def retrack_players(new_player_points, player_to_retrack, new_retrack_player_points, img, print_frame_number):
+        else:
+            player_retrack_frame = 0
 
+    good_new_2 = new_player_points[st_2==1]
+
+    # cv2.imshow('frame',img)
+    # k = cv2.waitKey(30) & 0xff
+    # if k == 27:
+    #     break
+    # gray_old_frame = gray_img.copy()
+
+    return good_new_2, players_to_retrack, new_retrack_player_points, player_retrack_frame, player_retrack_frames
+
+def track_static_points(gray_old_frame, gray_img, static_points, static_lk_params, new_feature_points, features_to_retrack, frame_number, video_number, old_number_of_static, static_corr_points):
+
+    new_static_points, st, err = cv2.calcOpticalFlowPyrLK(gray_old_frame, gray_img, static_points, None, **static_lk_params)
+
+    new_static_points, new_feature_points, features_to_retrack = check_for_large_movement_of_static_points(new_static_points, st, err, new_feature_points, features_to_retrack)
+
+    good_new = new_static_points[st==1]
+    good_old = static_points[st==1]
+
+    number_of_static = len(good_new)
+
+    #special case for video 2
+    #if ((frame_number))
+    # if ((frame_number == 256) and (video_number == 1)):
+    #     new_static_points[3][0] = [342, 109]
+    #     static_corr_points[3] = [0.75, 0.0]
+    #     print static_corr_points
+    # if ((frame_number == 305) and (video_number == 1)):
+    #     new_static_points[3][0] = [469, 163] 
+    #     static_corr_points[3] = [1.0, 0.0]
+    #     print static_corr_points
+    if ((frame_number == 132) and (video_number == 2)):
+        new_static_points[1][0] = [85, 167]
+    if ((frame_number == 372) and (video_number == 2)):
+        new_static_points[0][0] = [277, 239]  
+
+    if ((frame_number == 72) and (video_number == 4)):
+        new_static_points[2][0] = [475, 276]    
+    if ((frame_number == 106) and (video_number == 4)):
+        new_static_points[1][0] = [520, 268]
+        new_static_points[3][0] = [458, 160]  
+    if ((frame_number == 156) and (video_number == 4)):
+        new_static_points[3][0] = [154, 167]                  
+
+    new_static_points, new_feature_points, features_to_retrack, st, static_corr_points = check_static_points(number_of_static, old_number_of_static, new_static_points, new_feature_points, features_to_retrack, st, static_corr_points)
+    good_new = new_static_points[st==1]
+
+    return good_new, new_feature_points, features_to_retrack, static_corr_points
+
+def restructure_array(array):
+    new_array = []
+    for i in range(len(array)):
+        print array[i]
+        coordinates = array[i][0]
+        new_array.append(coordinates)
+    return new_array    
+
+def retrack_players_2(new_player_points, player_to_retrack, new_retrack_player_points,img, print_frame_number):
     #print_frame_number = get_frame_grid(img, print_frame_number)
+    print "RETRACKING"
     new_retrack_player_point = new_retrack_player_points[0]
     new_retrack_player_points = np.delete(new_retrack_player_points,[0], axis=0)
     new_player_points[player_to_retrack][0] = new_retrack_player_point 
     new_player_points = new_player_points.astype(np.float32)
     return new_player_points, new_retrack_player_points, print_frame_number
 
+def retrack_players(new_player_points, player_to_retrack, new_retrack_player_points):
+    #print_frame_number = get_frame_grid(img, print_frame_number)
+    print "RETRACKING"
+    new_retrack_player_point = new_retrack_player_points[0]
+    new_retrack_player_points = np.delete(new_retrack_player_points,[0], axis=0)
+    new_player_points[player_to_retrack][0] = new_retrack_player_point 
+    new_player_points = new_player_points.astype(np.float32)
+    return new_player_points, new_retrack_player_points#, print_frame_number
 
-def check_for_large_movement_of_static_points(new_static_points, st, err, new_feature_points, features_to_retrack, print_frame_number, img):
+def check_for_large_movement_of_static_points_2(new_static_points, st, err, new_feature_points, features_to_retrack, print_frame_number, img):
 
+    for k,(error, status) in enumerate(zip(err,st)):
+
+        if ((error > 15.0) and (status[0] == 1)):
+            print "DELETING LOL"
+
+            print_frame_number = get_frame_grid(img, print_frame_number)
+            feature_to_retrack = features_to_retrack.pop(0) 
+            new_feature = new_feature_points[0]
+            new_feature_points = np.delete(new_feature_points,[0], axis=0)
+            new_static_points[feature_to_retrack][0] = new_feature
+            #err = np.delete(err, [k], axis=0)
+            #st = np.delete(st, [k], axis=0)
+    return new_static_points, new_feature_points, features_to_retrack, print_frame_number
+
+def check_for_large_movement_of_static_points(new_static_points, st, err, new_feature_points, features_to_retrack):
     for k,(error, status) in enumerate(zip(err,st)):
 
         if ((error > 15.0) and (status[0] == 1)):
@@ -29,11 +129,12 @@ def check_for_large_movement_of_static_points(new_static_points, st, err, new_fe
             new_static_points[feature_to_retrack][0] = new_feature
             #err = np.delete(err, [k], axis=0)
             #st = np.delete(st, [k], axis=0)
-    return new_static_points, new_feature_points, features_to_retrack, print_frame_number
+    return new_static_points, new_feature_points, features_to_retrack#, print_frame_number
 
-def check_static_points(number_of_static, old_number_of_static, new_static_points, img, print_frame_number, new_feature_points, features_to_retrack, st):
+def check_static_points_2(number_of_static, old_number_of_static, new_static_points, img, print_frame_number, new_feature_points, features_to_retrack, st):
+
     if (number_of_static < old_number_of_static):
-        #print_frame_number = get_frame_grid(img, print_frame_number)
+        print_frame_number = get_frame_grid(img, print_frame_number)
         feature_to_retrack = features_to_retrack.pop(0)
 
         new_feature = new_feature_points[0]
@@ -42,7 +143,24 @@ def check_static_points(number_of_static, old_number_of_static, new_static_point
         new_static_points = new_static_points.astype(np.float32)
         st[feature_to_retrack] = [1]
 
-    return new_static_points, new_feature_points, features_to_retrack, print_frame_number, st    
+    return new_static_points, new_feature_points, features_to_retrack, print_frame_number, st 
+
+
+def check_static_points(number_of_static, old_number_of_static, new_static_points, new_feature_points, features_to_retrack, st, static_corr_points):
+    if (number_of_static < old_number_of_static):
+        #print_frame_number = get_frame_grid(img, print_frame_number)
+        feature_to_retrack = features_to_retrack.pop(0)
+
+        new_feature = new_feature_points[0]
+        new_feature_points = np.delete(new_feature_points,[0], axis=0)
+        new_static_points[feature_to_retrack][0] = new_feature
+
+        static_corr_points[feature_to_retrack] = [1.0, 1.0]
+        new_static_points = new_static_points.astype(np.float32)
+        st[feature_to_retrack] = [1]
+        #print static_corr_points
+
+    return new_static_points, new_feature_points, features_to_retrack, st, static_corr_points   
 
 def get_frame_grid(img, print_frame_number):
     plt.figure()
@@ -68,6 +186,7 @@ def get_video_initial_points(video_number):
         static_points[1][0] = [353, 193] # good middle of court
         static_points[2][0] = [39, 142] # good bottom of left pole
         static_points[3][0] = [88, 144] # left side of the court
+        #static_points[3][0] = [438, 136]
         static_points = static_points.astype(np.float32)
         
         # 1st video player points
@@ -80,8 +199,11 @@ def get_video_initial_points(video_number):
         player_points = player_points.astype(np.float32)
         print static_points
         
-        new_feature_points = np.zeros((2,1,2))
+        new_feature_points = np.zeros((1,1,2))
+        new_feature_points[0][0] = None
         features_to_retrack = []
+        # new_feature_points[0][0] = [163, 230]
+        # features_to_retrack = [3]
 
         player_retrack_frames = [373, 420, 580, 620, 680]
         players_to_retrack = [3, 3, 3, 1, 0]
@@ -350,11 +472,10 @@ def read_video_file(file_name, video_number):
         gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         
         new_static_points, st, err = cv2.calcOpticalFlowPyrLK(gray_old_frame, gray_img, static_points, None, **static_lk_params)
-        print st
-        print err
+
         new_player_points, st_2, err_2 = cv2.calcOpticalFlowPyrLK(gray_old_frame, gray_img, player_points, None, **player_lk_params)
-        #print st_2
-        new_static_points, new_feature_points, features_to_retrack, print_frame_number = check_for_large_movement_of_static_points(new_static_points, st, err, new_feature_points, features_to_retrack, print_frame_number, img)
+        print new_player_points
+        new_static_points, new_feature_points, features_to_retrack, print_frame_number = check_for_large_movement_of_static_points_2(new_static_points, st, err, new_feature_points, features_to_retrack, print_frame_number, img)
 
         
         if (i == player_retrack_frame):
@@ -365,7 +486,7 @@ def read_video_file(file_name, video_number):
             if ((video_number == 3) and (i == 69)):
                 new_player_points = np.append(new_player_points, [[[0,0]]], axis=0)
                 st_2 = np.append(st_2, [[1]], axis=0)    
-            new_player_points, new_retrack_player_points, print_frame_number = retrack_players(new_player_points, player_to_retrack, new_retrack_player_points, img, print_frame_number)
+            new_player_points, new_retrack_player_points, print_frame_number = retrack_players_2(new_player_points, player_to_retrack, new_retrack_player_points, img, print_frame_number)
             
             if ((len(players_to_retrack) > 0) and (len(player_retrack_frames) > 0)):
                 player_retrack_frame = player_retrack_frames.pop(0)
@@ -384,7 +505,13 @@ def read_video_file(file_name, video_number):
         # points to see if we have lost any points
         number_of_static = len(good_new)
         
-        # special case for video 2
+        #if ((i == 256) and (video_number == 1)):
+        #    new_static_points[3][0] = [342, 109]
+            #static_corr_points[4] = [0.75, 0.0]
+            #print static_corr_points
+        #if ((i == 305) and (video_number == 1)):
+        #    new_static_points[3][0] = [469, 163] 
+            #static_corr_points[4] = [1.0, 0.0]
         if ((i == 132) and (video_number == 2)):
             new_static_points[1][0] = [85, 167]
         if ((i == 372) and (video_number == 2)):
@@ -398,7 +525,7 @@ def read_video_file(file_name, video_number):
         if ((i == 156) and (video_number == 4)):
             new_static_points[3][0] = [154, 167]                  
 
-        new_static_points, new_feature_points, features_to_retrack, print_frame_number, st = check_static_points(number_of_static, old_number_of_static, new_static_points, img, print_frame_number, new_feature_points, features_to_retrack, st)
+        new_static_points, new_feature_points, features_to_retrack, print_frame_number, st = check_static_points_2(number_of_static, old_number_of_static, new_static_points, img, print_frame_number, new_feature_points, features_to_retrack, st)
         good_new = new_static_points[st==1]
         
         for j,(new,old) in enumerate(zip(good_new,good_old)):
@@ -431,7 +558,7 @@ def read_video_file(file_name, video_number):
         player_points = good_new_2.reshape(-1,1,2)
 
 def main():
-    file_name = "input/beachVolleyball1.mov"
+    file_name = "input/beachVolleyball2.mov"
     video_number = int(raw_input('Enter video number: '))
     read_video_file(file_name, video_number)
 

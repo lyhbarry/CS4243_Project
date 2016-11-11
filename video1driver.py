@@ -47,7 +47,7 @@ def frame_loop(vid, writer, vid_frame, static_points, static_corr_points, active
 
         # Without any player position info, Using original frame as full court frame
         # This part should be changed to update
-        output_frame = og.generate_frame(vid_frame, vid_frame, outputDim, entityPos, entityPos_prev, entityDist)
+        output_frame = og.generate_frame(video_number, vid_frame, vid_frame, outputDim, entityPos, entityPos_prev, entityDist)
 
         #Additional step, mark all the points
         counter = 0

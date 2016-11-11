@@ -20,8 +20,8 @@ def construct_m(pts_p, pts_c):
     """
     A = []
     for i in range(len(pts_p)):
-        up = pts_p[i][0]
-        vp = pts_p[i][1]
+        up = -pts_p[i][0]
+        vp = -pts_p[i][1]
         uc = pts_c[i][0]
         vc = pts_c[i][1]
         A.append([up, vp, 1, 0, 0, 0, -(uc * up), -(uc * vp), -uc])

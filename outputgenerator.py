@@ -139,7 +139,7 @@ def draw_top_down_alt(frame, feature_pos):
 
 
 
-def generate_frame(orig_frame, full_court_frame, outputDim, feature_pos, feature_pos_prev, feature_dist):
+def generate_frame(vid_num, orig_frame, full_court_frame, outputDim, feature_pos, feature_pos_prev, feature_dist):
     """ Generates an output frame based on input frame
         and existing information """
     """
@@ -161,7 +161,7 @@ def generate_frame(orig_frame, full_court_frame, outputDim, feature_pos, feature
         w2, h2 = feature_pos_prev[k]
         curr_pos = (int(abs(w1*632)), int(abs(h1*300)))
         prev_pos = (int(abs(w2*632)), int(abs(h2*300)))
-        feature_dist[k] += get_distance(np.asarray(curr_pos), np.asarray(prev_pos))
+        feature_dist[k] += get_distance(vid_num, np.asarray(curr_pos), np.asarray(prev_pos))
 
     # Text labels for each frame
     rw.draw_original_vid(vid_frame)

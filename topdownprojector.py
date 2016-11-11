@@ -106,7 +106,7 @@ def toPlaneCoordinates2D(pts, H, normalize=True):
     """
     plane_pts = []
     for pt in pts:
-        vec = np.array([pt[0], pt[1], 1])
+        vec = np.asarray([pt[0], pt[1], 1])
         plane_pt = np.dot(H, vec).transpose()
         if(normalize):
             plane_pt = normalizeImgVector(plane_pt)

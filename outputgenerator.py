@@ -24,7 +24,10 @@ def output_writer(vid_name):
     # Define the codec and create VideoWriter object
     fourcc = cv2.cv.CV_FOURCC('m', 'p', '4', 'v')
 
-    out = cv2.VideoWriter('output_1.avi', fourcc, fps, (w * 2, h * 2))
+    if fps > 60:
+        fps = 60
+
+    out = cv2.VideoWriter('output_3.avi', fourcc, fps, (w * 2, h * 2))
     return out
 
 def draw_stats_alt(frame, dist):

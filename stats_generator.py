@@ -11,8 +11,11 @@ def get_distance(vid_num, start_pos, end_pos):
 	Args:
 		start_pos
 	"""
+	m_per_pixel = 0.0333
 	if vid_num == 1:
 		m_per_pixel = 0.02
+	if vid_num == 4:
+		m_per_pixel = 0.033
 	distance = np.linalg.norm(start_pos - end_pos) * m_per_pixel
 
 	return distance

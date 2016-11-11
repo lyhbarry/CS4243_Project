@@ -4,6 +4,7 @@
 Executes all reading and writing of videos.
 """
 import cv2
+import re
 import numpy as np
 
 from random import randint
@@ -198,15 +199,19 @@ def output_generator(vid_name):
 	default_vid = cv2.VideoCapture('input/beachVolleyball1.mov')
 	vid = cv2.VideoCapture(vid_name)
 
+	vid_num = int(re.search(r'\d+', vid_name).group())
+
 	# Get properties of video
 	w = int(default_vid.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
 	h = int(default_vid.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
 	fps = int(vid.get(cv2.cv.CV_CAP_PROP_FPS))
 	frame_count = int(vid.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT))
 
+	if fps > 60:
+		fps = 60
 	# Define the codec and create VideoWriter object
 	fourcc = cv2.cv.CV_FOURCC('m', 'p', '4', 'v')
-	out = cv2.VideoWriter('output.avi', fourcc, fps, (w * 2, h * 2))
+	out = cv2.VideoWriter('output_' + str(vid_num) + '.avi', fourcc, fps, (w * 2, h * 2))
 
 	dist = {}
 	dist['a1'] = 0
@@ -263,10 +268,10 @@ def output_generator(vid_name):
 									 feature_pos['b1_v']])
 			b2_end_pos = np.asarray([feature_pos['b2_u'],\
 									 feature_pos['b2_v']])
-			dist['a1'] += get_distance(a1_prev_pos, a1_end_pos)
-			dist['a2'] += get_distance(a2_prev_pos, a2_end_pos)
-			dist['b1'] += get_distance(b1_prev_pos, b1_end_pos)
-			dist['b2'] += get_distance(b2_prev_pos, b2_end_pos)
+			dist['a1'] += get_distance(vid_num, a1_prev_pos, a1_end_pos)
+			dist['a2'] += get_distance(vid_num, a2_prev_pos, a2_end_pos)
+			dist['b1'] += get_distance(vid_num, b1_prev_pos, b1_end_pos)
+			dist['b2'] += get_distance(vid_num, b2_prev_pos, b2_end_pos)
 			a1_prev_pos = np.asarray([feature_pos['a1_u'],\
 									  feature_pos['a1_v']])
 			a2_prev_pos = np.asarray([feature_pos['a2_u'],\

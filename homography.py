@@ -49,7 +49,7 @@ def find_homography(pts_src, pts_dsc):
 
         # the last column of V is the homography matrix
         homo_mat = np.matrix(np.reshape(V[-1], (3, 3)))
-        print "len(V[-1]) =", len(V[-1])
+        # print "len(V[-1]) =", len(V[-1])
         # setting all super small values to zero
         homo_mat[abs(homo_mat) < 1e-14] = 0
         # normalising the matrix such that h33 to 1

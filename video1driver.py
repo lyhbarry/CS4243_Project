@@ -5,6 +5,9 @@ import numpy as np
 import cv2
 
 
+font = cv2.FONT_HERSHEY_PLAIN   # Font-type
+
+
 #Wrapper function for the per-frame loop logic
 def frame_loop(vid, writer, vid_frame, prev_vid_frame, static_points, static_corr_points, active_points, mapping, entityPos, entityPos_prev, static_lk_params, player_lk_params):
     #Update feature locations
@@ -51,8 +54,6 @@ def frame_loop(vid, writer, vid_frame, prev_vid_frame, static_points, static_cor
     ret, vid_frame = vid.read()
     return ret, vid_frame, prev_vid_frame, static_points, static_corr_points, active_points, entityPos, entityPos_prev
 
-font = cv2.FONT_HERSHEY_PLAIN	# Font-type
-
 #Model to use for LK tracker, using Ben's model
 static_lk_params = dict(winSize  = (10,10),maxLevel = 2,criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
 player_lk_params = dict(winSize  = (15,15),maxLevel = 2,criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
@@ -66,6 +67,9 @@ vid = cv2.VideoCapture(src)
 ret, vid_frame = vid.read()
 prev_vid_frame = vid_frame[:]
 outputDim = vid_frame.shape
+
+entityDist = {'a1' : 0., 'a2' : 0.,\
+              'b1' : 0., 'b2' : 0.}
 
 static_points = [
     [294, 84],
@@ -88,7 +92,7 @@ active_points = [
 
 #Map to top-down
 H = hg.find_homography(static_points, static_corr_points)
-top_down_points = tdp.toPlaneCoordinates2D(active_points, H, normalize=True)
+top_down_points = tdp.toPlaneCoordinates2D(active_points, H, normalize=False)
 
 mapping = {'b1':0, 'b2':1, 'a1':2, 'a2':3, 'ball':4}
 entityPos = {}
@@ -98,11 +102,10 @@ for k, v in mapping.items():
     entityPos_prev[k] = top_down_points[v]
     entityPos[k] = top_down_points[v]
 
-entityDist = {'a1' : 0., 'a2' : 0.,\
-              'b1' : 0., 'b2' : 0.}
-
+entityPos_list = []
 while ret:
     ret, vid_frame, prev_vid_frame, static_points, static_corr_points, active_points, entityPos, entityPos_prev = frame_loop(vid, writer, vid_frame, prev_vid_frame, static_points, static_corr_points, active_points, mapping, entityPos, entityPos_prev, static_lk_params, player_lk_params)
+    entityPos_list.append(entityPos)
 
 vid.release()
 writer.release()

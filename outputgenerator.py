@@ -24,7 +24,7 @@ def output_writer(vid_name):
     # Define the codec and create VideoWriter object
     fourcc = cv2.cv.CV_FOURCC('m', 'p', '4', 'v')
 
-    out = cv2.VideoWriter('output.avi', fourcc, fps, (w * 2, h * 2))
+    out = cv2.VideoWriter('output_1.avi', fourcc, fps, (w * 2, h * 2))
     return out
 
 def draw_stats_alt(frame, dist):
@@ -103,7 +103,6 @@ def draw_top_down_alt(frame, feature_pos):
     if('a1' in feature_pos.keys()):
         w, h = feature_pos['a1']
         pos = (int((w*court_width_p)+w_offset+76), int((h*court_height_p)+h_offset+30))
-        print pos
         cv2.circle(frame, pos, 10, a_side_color, -1)
         cv2.putText(frame, 'A1', pos, font, 1.5, (255,255,255), 1, cv2.CV_AA)
 
@@ -166,7 +165,6 @@ def generate_frame(orig_frame, full_court_frame, outputDim, feature_pos, feature
     rw.draw_full_court(full_court_frame)
     draw_top_down_alt(top_down_frame, feature_pos)
     rw.draw_stats(stats_frame, feature_dist)
-
 
     # Concatenate output videos
     top_half = np.hstack((vid_frame, full_court_frame))

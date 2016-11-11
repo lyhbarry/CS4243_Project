@@ -27,7 +27,7 @@ def output_writer(vid_name):
     if fps > 60:
         fps = 60
 
-    out = cv2.VideoWriter('output_3.avi', fourcc, fps, (w * 2, h * 2))
+    out = cv2.VideoWriter('output_1.avi', fourcc, fps, (w * 2, h * 2))
     return out
 
 def draw_stats_alt(frame, dist):
@@ -99,10 +99,10 @@ def draw_top_down_alt(frame, feature_pos):
     court_width_p = 632
     court_height_p = 300
 
-    #w_offset = -108
-    #h_offset = -75
-    w_offset = 0
-    h_offset = 0
+    w_offset = -128
+    h_offset = -75
+    # w_offset = 0
+    # h_offset = 0
 
     # Player A1
     if('a1' in feature_pos.keys()):

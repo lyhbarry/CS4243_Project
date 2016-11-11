@@ -12,7 +12,7 @@ font = cv2.FONT_HERSHEY_PLAIN   # Font-type
 
 
 #Wrapper function for the per-frame loop logic
-def frame_loop(vid, writer, vid_frame, static_points, static_corr_points, active_points, mapping, entityPos, entityDist, entityPos_prev, static_lk_params, player_lk_params, new_feature_points, features_to_retrack, player_retrack_frames, new_retrack_player_points, players_to_retrack, video_number):
+def frame_loop(vid, writer, vid_frame, static_points, static_corr_points, next_static_corr_points, active_points, mapping, entityPos, entityDist, entityPos_prev, static_lk_params, player_lk_params, new_feature_points, features_to_retrack, player_retrack_frames, new_retrack_player_points, players_to_retrack, video_number):
     #Update feature locations
     old_number_of_static = len(static_points)
     gray_previous_frame = cv2.cvtColor(vid_frame, cv2.COLOR_BGR2GRAY)
@@ -31,7 +31,7 @@ def frame_loop(vid, writer, vid_frame, static_points, static_corr_points, active
         active_points, st, err = cv2.calcOpticalFlowPyrLK(gray_old_frame, gray_img, np.array(active_points, dtype=np.float32), None, **player_lk_params)
         active_points = active_points.tolist()
         """
-        static_points, new_feature_points, features_to_retrack, static_corr_points = ft2.track_static_points(gray_previous_frame, gray_frame, static_points, static_lk_params, new_feature_points, features_to_retrack, i, video_number, old_number_of_static, static_corr_points)
+        static_points, new_feature_points, features_to_retrack, static_corr_points, next_static_corr_points = ft2.track_static_points(gray_previous_frame, gray_frame, static_points, static_lk_params, new_feature_points, features_to_retrack, i, video_number, old_number_of_static, static_corr_points, next_static_corr_points)
         active_points, players_to_retrack, new_retrack_player_points, player_retrack_frame, player_retrack_frames = ft2.track_players(gray_previous_frame, gray_frame, active_points, player_lk_params, new_retrack_player_points, player_retrack_frame, player_retrack_frames, players_to_retrack, i, video_number)
         #print players_to_retrack
         #gray_old_frame = gray_img.copy()
@@ -93,7 +93,7 @@ outputDim = vid_frame.shape
 
 entityDist = {'a1' : 0., 'a2' : 0.,\
               'b1' : 0., 'b2' : 0.}
-static_points, active_points, new_feature_points, frame_count, player_retrack_frames, players_to_retrack, new_retrack_player_points, features_to_retrack = ft2.get_video_initial_points(video_number)
+static_points, active_points, new_feature_points, frame_count, player_retrack_frames, players_to_retrack, new_retrack_player_points, features_to_retrack, static_corr_points, next_static_corr_points = ft2.get_video_initial_points(video_number)
 """
 static_points = [
     [294, 84],
@@ -111,11 +111,13 @@ static_corr_points = [
     [1., -0.3], #Flag guy's foot
     [0.5, -0.5]] #Person sitting by london 2012 text
 """
+"""
 static_corr_points = [
     [0.5, -0.1],
     [1.0, 0.5],
     [0.5, 1.1],
     [0.5, 1.0]]    
+"""    
 """    
 active_points = [
     [492, 236], #'a1', player serving
@@ -142,7 +144,7 @@ for k, v in mapping.items():
 #entityPos_list = []
 #while ret:
 #ret, vid_frame, prev_vid_frame, static_points, static_corr_points, active_points, entityPos, entityPos_prev = frame_loop(vid, writer, first_frame, static_points, static_corr_points, active_points, mapping, entityPos, entityPos_prev, static_lk_params, player_lk_params, new_feature_points, features_to_retrack, player_retrack_frames, new_retrack_player_points, players_to_retrack, video_number)
-entityPos_list = frame_loop(vid, writer, vid_frame, static_points, static_corr_points, active_points, mapping, entityPos, entityDist, entityPos_prev, static_lk_params, player_lk_params, new_feature_points, features_to_retrack, player_retrack_frames, new_retrack_player_points, players_to_retrack, video_number)
+entityPos_list = frame_loop(vid, writer, vid_frame, static_points, static_corr_points, next_static_corr_points, active_points, mapping, entityPos, entityDist, entityPos_prev, static_lk_params, player_lk_params, new_feature_points, features_to_retrack, player_retrack_frames, new_retrack_player_points, players_to_retrack, video_number)
 #entityPos_list.append(entityPos)
 
 vid.release()

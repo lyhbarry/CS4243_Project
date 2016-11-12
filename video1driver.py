@@ -86,79 +86,86 @@ def frame_loop(vid, writer, vid_frame, static_points, static_corr_points, next_s
 static_lk_params = dict(winSize  = (10,10),maxLevel = 2,criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
 player_lk_params = dict(winSize  = (5,5),maxLevel = 2,criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
 
-# Here is a sample run of how it works
-src = 'input/beachVolleyball3.mov'
-writer = og.output_writer(src)
+# Video files to run
+# Does not work for video 4 and 5
+sources = [
+           'input/beachVolleyball1.mov',
+           'input/beachVolleyball2.mov',
+           'input/beachVolleyball3.mov',
+           # 'input/beachVolleyball4.mov',
+           # 'input/beachVolleyball5.mov',
+           'input/beachVolleyball6.mov',
+           'input/beachVolleyball7.mov'
+           ]
 
-vid = cv2.VideoCapture(src)
+for src in sources:
+    writer = og.output_writer(src)
 
-video_number = int(re.search(r'\d+', src).group())
+    vid = cv2.VideoCapture(src)
 
-# Comment out this section to not run the stitching
-frames, fps = rw.read(src)
-stitcher = Stitcher()
-stitcher.do_main(frames, fps, [None, None, None, frames[0].shape[0] / 2], None, video_number)
+    video_number = int(re.search(r'\d+', src).group())
 
-ret, vid_frame = vid.read()
-#prev_vid_frame = vid_frame[:]
-outputDim = vid_frame.shape
+    # Comment out this section to not run the stitching
+    frames, fps = rw.read(src)
+    stitcher = Stitcher()
+    stitcher.do_main(frames, fps, [None, None, None, frames[0].shape[0] / 2], None, video_number)
 
-entityDist = {'a1' : 0., 'a2' : 0.,\
-              'b1' : 0., 'b2' : 0.}
-static_points, active_points, new_feature_points, frame_count, player_retrack_frames, players_to_retrack, new_retrack_player_points, features_to_retrack, static_corr_points, next_static_corr_points = ft2.get_video_initial_points(video_number)
-"""
-static_points = [
-    [294, 84],
-    [440, 136],
-    [39, 142],
-    [478, 116],
-    [349, 69]]
-"""
-first_frame_static = ft2.restructure_array(static_points)
-"""
-static_corr_points = [
-    [0.5, -0.1], #Umpire-side pole
-    [0., 1.], #Umpire-side right corner
-    [0.5, 1.1], #Non-umpire-side pole
-    [1., -0.3], #Flag guy's foot
-    [0.5, -0.5]] #Person sitting by london 2012 text
-"""
-"""
-static_corr_points = [
-    [0.5, -0.1],
-    [1.0, 0.5],
-    [0.5, 1.1],
-    [0.5, 1.0]]
-"""
-"""
-active_points = [
-    [492, 236], #'a1', player serving
-    [207, 114], #'a2', player near net
-    [111, 79], #'b1', opposite nearer bottom
-    [165, 68], #'b2', opposite nearer top
-    [498, 187]] #'ball', expected to be hard to track
-"""
-first_frame_players = ft2.restructure_array(active_points)
-#Map to top-down
-H = hg.find_homography(first_frame_static, static_corr_points)
-#alpha = compute_alpha(H, static_corr_points)
-top_down_points = tdp.toPlaneCoordinates2D(first_frame_players, H, normalize=False)
+    ret, vid_frame = vid.read()
+    #prev_vid_frame = vid_frame[:]
+    outputDim = vid_frame.shape
 
-mapping = {'b1':0, 'b2':1, 'a1':2, 'a2':3}#, 'ball':4}
-entityPos = {}
-entityPos_prev = {}
+    entityDist = {'a1' : 0., 'a2' : 0.,\
+                  'b1' : 0., 'b2' : 0.}
+    static_points, active_points, new_feature_points, frame_count, player_retrack_frames, players_to_retrack, new_retrack_player_points, features_to_retrack, static_corr_points, next_static_corr_points = ft2.get_video_initial_points(video_number)
+    """
+    static_points = [
+        [294, 84],
+        [440, 136],
+        [39, 142],
+        [478, 116],
+        [349, 69]]
+    """
+    first_frame_static = ft2.restructure_array(static_points)
+    """
+    static_corr_points = [
+        [0.5, -0.1], #Umpire-side pole
+        [0., 1.], #Umpire-side right corner
+        [0.5, 1.1], #Non-umpire-side pole
+        [1., -0.3], #Flag guy's foot
+        [0.5, -0.5]] #Person sitting by london 2012 text
+    """
+    """
+    static_corr_points = [
+        [0.5, -0.1],
+        [1.0, 0.5],
+        [0.5, 1.1],
+        [0.5, 1.0]]
+    """
+    """
+    active_points = [
+        [492, 236], #'a1', player serving
+        [207, 114], #'a2', player near net
+        [111, 79], #'b1', opposite nearer bottom
+        [165, 68], #'b2', opposite nearer top
+        [498, 187]] #'ball', expected to be hard to track
+    """
+    first_frame_players = ft2.restructure_array(active_points)
+    #Map to top-down
+    H = hg.find_homography(first_frame_static, static_corr_points)
+    #alpha = compute_alpha(H, static_corr_points)
+    top_down_points = tdp.toPlaneCoordinates2D(first_frame_players, H, normalize=False)
 
-for k, v in mapping.items():
-    entityPos_prev[k] = top_down_points[v]
-    entityPos[k] = top_down_points[v]
-#print static_points
-#print static_corr_points
-#entityPos_list = []
-#while ret:
-#ret, vid_frame, prev_vid_frame, static_points, static_corr_points, active_points, entityPos, entityPos_prev = frame_loop(vid, writer, first_frame, static_points, static_corr_points, active_points, mapping, entityPos, entityPos_prev, static_lk_params, player_lk_params, new_feature_points, features_to_retrack, player_retrack_frames, new_retrack_player_points, players_to_retrack, video_number)
-entityPos_list = frame_loop(vid, writer, vid_frame, static_points, static_corr_points, next_static_corr_points, active_points, mapping, entityPos, entityDist, entityPos_prev, static_lk_params, player_lk_params, new_feature_points, features_to_retrack, player_retrack_frames, new_retrack_player_points, players_to_retrack, video_number)
-#entityPos_list.append(entityPos)
+    mapping = {'b1':0, 'b2':1, 'a1':2, 'a2':3}#, 'ball':4}
+    entityPos = {}
+    entityPos_prev = {}
 
-vid.release()
-writer.release()
-cv2.destroyAllWindows()
+    for k, v in mapping.items():
+        entityPos_prev[k] = top_down_points[v]
+        entityPos[k] = top_down_points[v]
+
+    entityPos_list = frame_loop(vid, writer, vid_frame, static_points, static_corr_points, next_static_corr_points, active_points, mapping, entityPos, entityDist, entityPos_prev, static_lk_params, player_lk_params, new_feature_points, features_to_retrack, player_retrack_frames, new_retrack_player_points, players_to_retrack, video_number)
+    #entityPos_list.append(entityPos)
+
+    vid.release()
+    writer.release()
+    cv2.destroyAllWindows()

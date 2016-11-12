@@ -7,6 +7,7 @@ Output Generator
 import cv2
 import numpy as np
 import rw
+import re
 from stats_generator import get_distance
 
 
@@ -14,6 +15,7 @@ def output_writer(vid_name):
     """ Generates output an output writer """
     default_vid = cv2.VideoCapture(vid_name)
     vid = cv2.VideoCapture(vid_name)
+    vid_num = int(re.search(r'\d+', vid_name).group())
 
     # Get properties of video
     w = int(default_vid.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
@@ -27,7 +29,7 @@ def output_writer(vid_name):
     if fps > 60:
         fps = 60
 
-    out = cv2.VideoWriter('output_1.avi', fourcc, fps, (w * 2, h * 2))
+    out = cv2.VideoWriter('output_' + str(vid_num) + '.avi', fourcc, fps, (w * 2, h * 2))
     return out
 
 def draw_stats_alt(frame, dist):
